@@ -10,7 +10,8 @@
   },
   "scripts": {
     "start": "node index.mjs",
-    "mcp": "node index.mjs --mcp"
+    "mcp": "node index.mjs --mcp",
+    "build:hero": "node scripts/build-hero.mjs"
   },
   "keywords": [
     "pokemon",
