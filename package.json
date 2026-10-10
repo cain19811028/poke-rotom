@@ -1,0 +1,30 @@
+{
+  "name": "poke-rotom",
+  "version": "1.0.0",
+  "description": "Rotom Pokédex for AI Agents: Lightweight Pokémon MCP Server & Skill with multi-lingual search, battle stats, and HD sprites.",
+  "type": "module",
+  "main": "index.mjs",
+  "bin": {
+    "poke-rotom": "./index.mjs",
+    "rotom": "./index.mjs"
+  },
+  "scripts": {
+    "start": "node index.mjs",
+    "mcp": "node index.mjs --mcp"
+  },
+  "keywords": [
+    "pokemon",
+    "pokedex",
+    "pokeapi",
+    "mcp",
+    "model-context-protocol",
+    "claude-skill",
+    "rotom",
+    "token-saving"
+  ],
+  "author": "cain19811028",
+  "license": "MIT",
+  "engines": {
+    "node": ">=18.0.0"
+  }
+}
