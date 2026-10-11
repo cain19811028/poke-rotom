@@ -23,7 +23,7 @@ Use this skill whenever:
 
 ## CLI Usage
 
-Run within the skill directory with Node.js (requires Node 18.3+):
+Run within the skill directory with Node.js (requires Node 22+):
 
 ```bash
 # 1. Compact 1-line query (Recommended to minimize token consumption):
