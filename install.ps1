@@ -1,3 +1,6 @@
+# SPDX-License-Identifier: MIT
+# Copyright (c) 2026 cain19811028
+
 # poke-rotom One-Click Installer for Windows
 # Copies skill into Claude Code and Cursor user directories and displays MCP configuration.
 

@@ -1,4 +1,6 @@
 #!/usr/bin/env node
+// SPDX-License-Identifier: MIT
+// Copyright (c) 2026 cain19811028
 // Generates assets/hero.svg, the animated README banner: `npm run build:hero`.
 // Entry data comes from the real lookup, so the card never drifts from the index.
 //

@@ -1,4 +1,6 @@
 #!/usr/bin/env bash
+# SPDX-License-Identifier: MIT
+# Copyright (c) 2026 cain19811028
 # poke-rotom One-Click Installer for macOS / Linux
 set -euo pipefail
 

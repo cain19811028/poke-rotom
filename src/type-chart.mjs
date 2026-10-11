@@ -1,3 +1,6 @@
+// SPDX-License-Identifier: MIT
+// Copyright (c) 2026 cain19811028
+
 // Official 18-type damage effectiveness matrix
 // Attacking -> Defending multiplier (2 = super effective, 0.5 = not very effective, 0 = immune, default = 1)
 export const TYPES = [

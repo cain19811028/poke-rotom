@@ -1,4 +1,6 @@
 #!/usr/bin/env node
+// SPDX-License-Identifier: MIT
+// Copyright (c) 2026 cain19811028
 import { parseArgs } from "node:util";
 import { findPokemon, getSpriteUrl, downloadSprite } from "./src/lookup.mjs";
 import { startMcpServer } from "./src/mcp-server.mjs";
