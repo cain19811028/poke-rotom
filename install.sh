@@ -3,9 +3,13 @@
 set -euo pipefail
 
 SKILL_NAME="poke-rotom"
-SRC="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+SRC="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd -P)"
 
 echo "⚡ Installing $SKILL_NAME..."
+
+is_previous_install() {
+  grep -qE "^name:[[:space:]]*$SKILL_NAME[[:space:]]*$" "$1/SKILL.md" 2>/dev/null
+}
 
 copy_to() {
   local dst="$1"
@@ -13,13 +17,27 @@ copy_to() {
     echo "❌ Safety check failed: invalid destination path: $dst" >&2
     exit 1
   fi
-  mkdir -p "$dst"
-  rm -rf "$dst"/*
-  for item in "$SRC"/*; do
-    local base="$(basename "$item")"
-    if [[ "$base" != ".git" ]]; then
-      cp -R "$item" "$dst/"
+  # A symlinked skill dir points at someone's working copy; clearing it would delete that copy.
+  if [[ -L "$dst" ]]; then
+    echo "⚠ Skipped $dst: it is a symlink to $(readlink "$dst"), left untouched."
+    return
+  fi
+  if [[ -d "$dst" ]]; then
+    if [[ "$(cd "$dst" && pwd -P)" == "$SRC" ]]; then
+      echo "✔ Already installed in place: $dst"
+      return
     fi
+    # Only clear a directory that positively holds an earlier install of this skill.
+    if [[ -n "$(ls -A "$dst")" ]] && ! is_previous_install "$dst"; then
+      echo "❌ Refusing to replace $dst: it is not a $SKILL_NAME install." >&2
+      exit 1
+    fi
+    rm -rf "$dst"
+  fi
+  mkdir -p "$dst"
+  # The glob skips dotfiles, so .git and other local state never get copied.
+  for item in "$SRC"/*; do
+    cp -R "$item" "$dst/"
   done
   echo "✔ Installed skill to: $dst"
 }
