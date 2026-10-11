@@ -68,3 +68,4 @@ node index.mjs --mcp
 
 - **Author**: [cain19811028](https://github.com/cain19811028)
 - **Legal**: Pokémon and Pokémon character names are trademarks of Nintendo, Creatures Inc., GAME FREAK Inc., and The Pokémon Company. This is an unofficial, non-commercial fan-made tool.
+- **License**: The code is MIT licensed. See `NOTICE.md` for trademarks, bundled data, and downloaded images.

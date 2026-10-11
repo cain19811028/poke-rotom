@@ -148,8 +148,9 @@ node index.mjs charizard --sprite official --shiny --out charizard_shiny.png
 
 ### `$ rotom --license & disclaimer`
 
-- **Code License**: Licensed under the [MIT License](LICENSE) © 2026 [cain19811028](https://github.com/cain19811028).
-- **Trademark & IP Disclaimer**: Pokémon and Pokémon character names, sprites, and trademarks are the intellectual property of **Nintendo, Creatures Inc., GAME FREAK inc., and The Pokémon Company**.
-- **Non-Affiliation**: This is an independent, non-profit fan-made developer tool for educational and AI agent integration purposes. It is **not** endorsed by or affiliated with Nintendo, GAME FREAK, Creatures Inc., or The Pokémon Company.
-- **Fair Use & Data Source**: Game data and sprites are provided via the open-source community [PokéAPI](https://pokeapi.co/) for personal, non-commercial reference. Users are solely responsible for compliance with applicable IP laws when using downloaded assets.
-- **Takedown Notice**: If you are a rights holder and have concerns, please open a GitHub Issue or contact the repository author for prompt removal or resolution.
+- **Code License**: The source code is licensed under the [MIT License](LICENSE) © 2026 [cain19811028](https://github.com/cain19811028). The license covers the code only.
+- **Trademarks**: Pokémon and Pokémon character names are trademarks of **Nintendo, Creatures Inc., GAME FREAK Inc., and The Pokémon Company**.
+- **Unofficial**: poke-rotom is an independent, non-commercial fan project. It is **not** affiliated with, sponsored by, or endorsed by any of them.
+- **Data & Images**: `data/pokedex.json` holds factual reference data derived from [PokéAPI](https://pokeapi.co/) (BSD 3-Clause). This repository contains **no Pokémon artwork**; sprites are downloaded on request from [PokeAPI/sprites](https://github.com/PokeAPI/sprites), are not licensed to you by this project, and remain the property of their owners. You are responsible for how you use them.
+- **Details**: See [NOTICE.md](NOTICE.md) and [THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md).
+- **Rights Holders**: If you have a concern about any material referenced here, please [open an issue](https://github.com/cain19811028/poke-rotom/issues); it will be handled promptly, including removal where appropriate.
