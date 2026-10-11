@@ -1,7 +1,7 @@
 import fs from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
-import { calculateWeaknesses } from "./type-chart.mjs";
+import { calculateWeaknesses, calculateStabCoverage } from "./type-chart.mjs";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const DB_PATH = path.resolve(__dirname, "../data/pokedex.json");
@@ -68,12 +68,13 @@ export function findPokemon(rawQuery) {
 }
 
 /**
- * Enrich Pokémon object with weaknesses.
+ * Enrich Pokémon object with weaknesses and STAB offensive advantages.
  */
 function enrichPokemon(p) {
   return {
     ...p,
     weaknesses: calculateWeaknesses(p.types || []),
+    stab_coverage: calculateStabCoverage(p.types || []),
   };
 }
 

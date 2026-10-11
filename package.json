@@ -10,6 +10,7 @@
   },
   "scripts": {
     "start": "node index.mjs",
+    "test": "node --test test/*.test.mjs",
     "mcp": "node index.mjs --mcp",
     "build:hero": "node scripts/build-hero.mjs"
   },

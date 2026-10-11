@@ -72,7 +72,8 @@ When an AI Agent requests full Pokémon combat and species info:
   "name_ja": "リザードン",
   "types": ["fire", "flying"],
   "stats": { "hp": 78, "atk": 84, "def": 78, "spa": 109, "spd": 85, "spe": 100, "bst": 534 },
-  "weaknesses": { "4x": ["rock"], "2x": ["water", "electric"], "0.5x": ["fire", "fighting"], "0.25x": ["grass", "bug"], "0x": ["ground"] },
+  "weaknesses": { "4x": ["rock"], "2x": ["water", "electric"], "0.5x": ["fire", "fighting", "steel", "fairy"], "0.25x": ["grass", "bug"], "0x": ["ground"] },
+  "stab_coverage": ["grass", "ice", "bug", "steel", "fighting"],
   "sprite": "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/6.png"
 }
 ```
@@ -80,7 +81,7 @@ When an AI Agent requests full Pokémon combat and species info:
 #### 2. Ultra-Compact Mode (`--brief`, Maximum Token Efficiency)
 ```bash
 $ node index.mjs charizard --brief
-#006 Charizard (噴火龍) | Fire/Flying | BST:534 (HP:78 Atk:84 Def:78 SpA:109 SpD:85 Spe:100) | Weak: Rock(4x), Water(2x), Electric(2x)
+#006 Charizard (Charizard) | fire/flying | BST:534 (HP:78 Atk:84 Def:78 SpA:109 SpD:85 Spe:100) | Weak: 4x:rock 2x:water,electric | Immune: ground(0x)
 ```
 
 ---

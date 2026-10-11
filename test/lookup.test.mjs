@@ -1,0 +1,148 @@
+import test from "node:test";
+import assert from "node:assert/strict";
+import { findPokemon, loadPokedex, getSpriteUrl, downloadSprite } from "../src/lookup.mjs";
+import { calculateWeaknesses, calculateStabCoverage, TYPES } from "../src/type-chart.mjs";
+
+test("Pokédex Data Integrity", async (t) => {
+  await t.test("contains all 1025 Gen 1~9 Pokémon entries", () => {
+    const list = loadPokedex();
+    assert.equal(list.length, 1025);
+  });
+
+  await t.test("every entry has valid schema and accurate BST calculation", () => {
+    const list = loadPokedex();
+    for (const p of list) {
+      assert.ok(p.id >= 1 && p.id <= 1025, `Invalid ID: ${p.id}`);
+      assert.ok(p.slug && typeof p.slug === "string");
+      assert.ok(p.en && typeof p.en === "string");
+      assert.ok(p.zh_tw && typeof p.zh_tw === "string");
+      assert.ok(p.zh_cn && typeof p.zh_cn === "string");
+      assert.ok(p.ja && typeof p.ja === "string");
+      assert.ok(Array.isArray(p.types) && p.types.length >= 1 && p.types.length <= 2);
+
+      const s = p.stats;
+      assert.ok(s, `Missing stats on #${p.id}`);
+      const sum = s.hp + s.atk + s.def + s.spa + s.spd + s.spe;
+      assert.equal(sum, s.bst, `BST mismatch on #${p.id} ${p.en}`);
+    }
+  });
+});
+
+test("Multilingual Lookup Engine (findPokemon)", async (t) => {
+  await t.test("finds by numeric ID and padded string ID", () => {
+    const p1 = findPokemon(25);
+    assert.equal(p1.slug, "pikachu");
+    const p2 = findPokemon("#025");
+    assert.equal(p2.slug, "pikachu");
+    const p3 = findPokemon("1025");
+    assert.equal(p3.slug, "pecharunt");
+  });
+
+  await t.test("finds by English name (case insensitive)", () => {
+    const p = findPokemon("Charizard");
+    assert.equal(p.id, 6);
+  });
+
+  await t.test("finds by Traditional Chinese name", () => {
+    const p = findPokemon("噴火龍");
+    assert.equal(p.id, 6);
+  });
+
+  await t.test("finds by Simplified Chinese name", () => {
+    const p = findPokemon("喷火龙");
+    assert.equal(p.id, 6);
+  });
+
+  await t.test("finds by Japanese name", () => {
+    const p = findPokemon("リザードン");
+    assert.equal(p.id, 6);
+  });
+
+  await t.test("returns null for unknown queries", () => {
+    assert.equal(findPokemon("not-a-pokemon"), null);
+    assert.equal(findPokemon(""), null);
+    assert.equal(findPokemon(null), null);
+  });
+});
+
+test("Type Chart & Battle Matchups Engine", async (t) => {
+  await t.test("computes defensive weaknesses and immunities correctly", () => {
+    // Charizard (Fire / Flying): 4x rock, 2x water & electric, 0x ground
+    const charizardWeak = calculateWeaknesses(["fire", "flying"]);
+    assert.deepEqual(charizardWeak["4x"], ["rock"]);
+    assert.ok(charizardWeak["2x"].includes("water"));
+    assert.ok(charizardWeak["2x"].includes("electric"));
+    assert.deepEqual(charizardWeak["0x"], ["ground"]);
+
+    // Swampert (Water / Ground): 4x grass, 0x electric
+    const swampertWeak = calculateWeaknesses(["water", "ground"]);
+    assert.deepEqual(swampertWeak["4x"], ["grass"]);
+    assert.deepEqual(swampertWeak["0x"], ["electric"]);
+
+    // Steel / Fairy: Immune to poison and dragon
+    const steelFairy = calculateWeaknesses(["steel", "fairy"]);
+    assert.ok(steelFairy["0x"].includes("poison"));
+    assert.ok(steelFairy["0x"].includes("dragon"));
+  });
+
+  await t.test("computes STAB offensive super-effective coverage", () => {
+    // Fire / Flying hits Grass, Ice, Bug, Steel, Fighting super-effectively
+    const coverage = calculateStabCoverage(["fire", "flying"]);
+    assert.ok(coverage.includes("grass"));
+    assert.ok(coverage.includes("ice"));
+    assert.ok(coverage.includes("bug"));
+    assert.ok(coverage.includes("steel"));
+    assert.ok(coverage.includes("fighting"));
+  });
+
+  await t.test("handles malformed or string type inputs safely", () => {
+    const fromStr = calculateWeaknesses("fire,flying");
+    assert.deepEqual(fromStr["4x"], ["rock"]);
+    assert.deepEqual(calculateWeaknesses(null), {});
+    assert.deepEqual(calculateWeaknesses(123), {});
+  });
+});
+
+test("Sprite URL Generation & Fallbacks (getSpriteUrl)", async (t) => {
+  await t.test("generates standard and shiny official artwork URLs", () => {
+    const normal = getSpriteUrl(6, "official", false);
+    assert.ok(normal.endsWith("/official-artwork/6.png"));
+    const shiny = getSpriteUrl(6, "official", true);
+    assert.ok(shiny.endsWith("/official-artwork/shiny/6.png"));
+  });
+
+  await t.test("generates Gen 3 Emerald sprite with shiny support", () => {
+    const g3Shiny = getSpriteUrl(6, "gen3", true);
+    assert.ok(g3Shiny.includes("/emerald/shiny/6.png"));
+  });
+
+  await t.test("falls back to official artwork for Gen 3 requests above #386", () => {
+    const g3Gen4 = getSpriteUrl(445, "gen3", false);
+    assert.ok(g3Gen4.includes("/official-artwork/445.png"));
+  });
+});
+
+test("Security Boundary Checks (downloadSprite)", async (t) => {
+  const safeUrl = "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/25.png";
+
+  await t.test("blocks disallowed non-image extensions", async () => {
+    await assert.rejects(
+      async () => downloadSprite(safeUrl, "test.sh"),
+      /Disallowed file extension/
+    );
+  });
+
+  await t.test("blocks path traversal outside working directory", async () => {
+    await assert.rejects(
+      async () => downloadSprite(safeUrl, "../../evil.png"),
+      /Security error: Output path must be within/
+    );
+  });
+
+  await t.test("blocks untrusted origins", async () => {
+    await assert.rejects(
+      async () => downloadSprite("https://attacker.example.com/sprite.png", "test.png"),
+      /Untrusted sprite URL source/
+    );
+  });
+});

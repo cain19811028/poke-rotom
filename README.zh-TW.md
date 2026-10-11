@@ -73,7 +73,8 @@
   "name_ja": "リザードン",
   "types": ["fire", "flying"],
   "stats": { "hp": 78, "atk": 84, "def": 78, "spa": 109, "spd": 85, "spe": 100, "bst": 534 },
-  "weaknesses": { "4x": ["rock"], "2x": ["water", "electric"], "0.5x": ["fire", "fighting"], "0.25x": ["grass", "bug"], "0x": ["ground"] },
+  "weaknesses": { "4x": ["rock"], "2x": ["water", "electric"], "0.5x": ["fire", "fighting", "steel", "fairy"], "0.25x": ["grass", "bug"], "0x": ["ground"] },
+  "stab_coverage": ["grass", "ice", "bug", "steel", "fighting"],
   "sprite": "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/6.png"
 }
 ```
@@ -81,7 +82,7 @@
 #### 2. 超緊湊單行模式 (`--brief`，極致壓榨 Token)
 ```bash
 $ node index.mjs 噴火龍 --brief
-#006 噴火龍 (Charizard) | 火/飛行 | BST:534 (HP:78 攻:84 防:78 特攻:109 特防:85 速:100) | 弱點:岩石(4x),水(2x),電(2x)
+#006 噴火龍 (Charizard) | 火/飛行 | BST:534 (HP:78 攻:84 防:78 特攻:109 特防:85 速:100) | 弱點: 岩石(4x), 水(2x), 電(2x) | 免疫: 地面(0x)
 ```
 
 ---

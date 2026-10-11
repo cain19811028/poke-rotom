@@ -156,9 +156,12 @@ async function main() {
         zhWeaknesses.push(...pokemon.weaknesses["2x"].map((t) => `${TYPE_NAMES_ZH[t] || t}(2x)`));
       }
       const weakStr = zhWeaknesses.length ? ` | 弱點: ${zhWeaknesses.join(", ")}` : "";
+      const immuneStr = pokemon.weaknesses?.["0x"]?.length
+        ? ` | 免疫: ${pokemon.weaknesses["0x"].map((t) => `${TYPE_NAMES_ZH[t] || t}(0x)`).join(", ")}`
+        : "";
 
       console.log(
-        `#${padId} ${pokemon.zh_tw || pokemon.en} (${pokemon.en}) | ${zhTypes} | ${zhStats}${weakStr}${outStr}`
+        `#${padId} ${pokemon.zh_tw || pokemon.en} (${pokemon.en}) | ${zhTypes} | ${zhStats}${weakStr}${immuneStr}${outStr}`
       );
       return;
     }
@@ -167,9 +170,12 @@ async function main() {
     if (pokemon.weaknesses?.["4x"]?.length) weaknesses.push(`4x:${pokemon.weaknesses["4x"].join(",")}`);
     if (pokemon.weaknesses?.["2x"]?.length) weaknesses.push(`2x:${pokemon.weaknesses["2x"].join(",")}`);
     const weakStr = weaknesses.length ? ` | Weak: ${weaknesses.join(" ")}` : "";
+    const immuneStr = pokemon.weaknesses?.["0x"]?.length
+      ? ` | Immune: ${pokemon.weaknesses["0x"].join(",")}(0x)`
+      : "";
 
     console.log(
-      `#${padId} ${pokemon.zh_tw || pokemon.en} (${pokemon.en}) | ${pokemon.types.join("/")} | BST:${pokemon.stats.bst} (HP:${pokemon.stats.hp} Atk:${pokemon.stats.atk} Def:${pokemon.stats.def} SpA:${pokemon.stats.spa} SpD:${pokemon.stats.spd} Spe:${pokemon.stats.spe})${weakStr}${outStr}`
+      `#${padId} ${pokemon.zh_tw || pokemon.en} (${pokemon.en}) | ${pokemon.types.join("/")} | BST:${pokemon.stats.bst} (HP:${pokemon.stats.hp} Atk:${pokemon.stats.atk} Def:${pokemon.stats.def} SpA:${pokemon.stats.spa} SpD:${pokemon.stats.spd} Spe:${pokemon.stats.spe})${weakStr}${immuneStr}${outStr}`
     );
     return;
   }
@@ -178,6 +184,7 @@ async function main() {
   const output = {
     ...pokemon,
     types_zh: pokemon.types.map((t) => TYPE_NAMES_ZH[t] || t),
+    stab_coverage_zh: (pokemon.stab_coverage || []).map((t) => TYPE_NAMES_ZH[t] || t),
     sprite: spriteUrl,
     sprite_style: spriteSet,
     is_shiny: isShiny,

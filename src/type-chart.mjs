@@ -112,3 +112,32 @@ export function calculateWeaknesses(defTypes) {
   }
   return compact;
 }
+
+/**
+ * Calculate offensive STAB (Same-Type Attack Bonus) super-effective coverage.
+ * Returns unique array of types that take 2x damage from the given Pokémon's STAB attacks.
+ * @param {string[]|string} types - e.g. ["fire", "flying"]
+ * @returns {string[]} - e.g. ["grass", "ice", "bug", "steel", "fighting"]
+ */
+export function calculateStabCoverage(types) {
+  const typesArr = Array.isArray(types)
+    ? types
+    : typeof types === "string"
+      ? types.split(/[,/\s]+/)
+      : [];
+  const normalized = typesArr
+    .filter((t) => typeof t === "string")
+    .map((t) => t.toLowerCase().trim())
+    .filter(Boolean);
+
+  const coverageSet = new Set();
+  for (const atkType of normalized) {
+    const table = DAMAGE_MULTIPLIERS[atkType] || {};
+    for (const [defType, mult] of Object.entries(table)) {
+      if (mult === 2) {
+        coverageSet.add(defType);
+      }
+    }
+  }
+  return [...coverageSet];
+}

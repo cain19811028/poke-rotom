@@ -1,6 +1,6 @@
 import readline from "node:readline";
 import { findPokemon, getSpriteUrl, downloadSprite } from "./lookup.mjs";
-import { calculateWeaknesses } from "./type-chart.mjs";
+import { calculateWeaknesses, calculateStabCoverage } from "./type-chart.mjs";
 
 const TOOLS = [
   {
@@ -169,11 +169,12 @@ export function startMcpServer() {
             return;
           }
           const weaknesses = calculateWeaknesses(rawTypes);
+          const stabCoverage = calculateStabCoverage(rawTypes);
           sendResponse(id, {
             content: [
               {
                 type: "text",
-                text: JSON.stringify({ types: rawTypes, weaknesses }),
+                text: JSON.stringify({ types: rawTypes, weaknesses, stab_coverage: stabCoverage }),
               },
             ],
           });
