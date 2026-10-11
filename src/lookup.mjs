@@ -286,7 +286,7 @@ export async function downloadSprite(url, outPath, options = {}) {
 
   let res = await fetchSprite(url);
 
-  // If a showdown GIF or custom sprite returns 404, fallback to official HD artwork
+  // If a showdown GIF or custom sprite returns 404, fallback to official artwork
   if (!res.ok && res.status === 404 && !url.includes("official-artwork")) {
     const numMatch = url.match(/\/(\d+)\.(gif|png)$/);
     if (numMatch) {

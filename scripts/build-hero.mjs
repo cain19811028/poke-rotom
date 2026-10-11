@@ -16,6 +16,7 @@ import { findPokemon, loadPokedex } from "../src/lookup.mjs";
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
 const OUT_PATH = path.join(ROOT, "assets/hero.svg");
 const pokedex = loadPokedex();
+const speciesCount = pokedex.filter((p) => !p.form_of).length;
 const pkg = JSON.parse(fs.readFileSync(path.join(ROOT, "package.json"), "utf8"));
 
 const W = 920, H = 340;
@@ -358,7 +359,7 @@ function hero() {
     `<path class="bolt" d="M${cx} 116 L${cx - 5} 124 L${cx + 4} 128 L${cx - 1} 135" ` +
       'style="fill:none;stroke:var(--spark);stroke-width:2.5;stroke-linejoin:miter"/>',
     book(cx, 138),
-    monoCentre(`${pokedex.length} entries · offline index`, cx, 233, 11, "mu"),
+    monoCentre(`${speciesCount} species · ${pokedex.length - speciesCount} forms · offline`, cx, 233, 11, "mu"),
 
     // The wire from the book to the card, and the pulse that runs along it.
     `<path d="M${cx + 94} 181 H292 L304 169 V108 L316 96 H${CARD_X}" ` +
@@ -377,7 +378,7 @@ function hero() {
     mono(">", 36, 283, PROMPT_SIZE, "ac b"),
     ...typingBody,
     mono("MCP server + agent skill", 26, 322, 11, "mu"),
-    monoRight("~120 tokens per lookup vs ~40k of raw PokéAPI JSON", 894, 322, 11, "mu"),
+    monoRight("~0.5 KB per lookup vs ~450 KB of raw PokéAPI JSON", 894, 322, 11, "mu"),
   ];
   const head =
     `<svg xmlns="http://www.w3.org/2000/svg" width="${W}" height="${H}" viewBox="0 0 ${W} ${H}" ` +

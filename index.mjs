@@ -38,7 +38,7 @@ Options:
   --json              Print structured JSON (default)
   --lang <en|zh-tw>   Language mode for output (default: auto-detected from query)
   --sprite <style>    Sprite set: 'official' (default), 'showdown' (GIF), 'gen3' (pixel), 'default'
-  --shiny             Fetch shiny / alternate colorway
+  --shiny             Fetch the shiny version (fan-made recolors for 'official')
   --out <path>        Download sprite image to specified file path (inside the current directory)
   --force             Overwrite the --out file if it already exists
   --mcp               Run as Model Context Protocol (MCP) stdio server

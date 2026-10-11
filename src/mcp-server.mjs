@@ -69,11 +69,11 @@ const TOOLS = [
         sprite: {
           type: "string",
           enum: ["official", "showdown", "gen3", "default"],
-          description: "Sprite set: 'official' (475x475 HD vector, default), 'showdown' (animated battle GIF), 'gen3' (GBA Emerald pixel), 'default' (classic front)",
+          description: "Sprite set: 'official' (475x475 PNG artwork, default), 'showdown' (animated battle GIF), 'gen3' (GBA Emerald pixel), 'default' (classic front)",
         },
         shiny: {
           type: "boolean",
-          description: "Whether to return shiny (色違) version sprite URL",
+          description: "Whether to return shiny (色違) version sprite URL. The 'official' shiny set is fan-made, not official artwork.",
         },
       },
       required: ["query"],
@@ -102,7 +102,7 @@ const TOOLS = [
   {
     name: "download_sprite",
     title: "Download Pokémon sprite",
-    description: "Download official Pokémon artwork or sprite to a local file path. Prevents AI image hallucination.",
+    description: "Download Pokémon artwork or a sprite from PokeAPI/sprites to a local file path, instead of having an image model draw one.",
     inputSchema: {
       type: "object",
       properties: {
@@ -122,7 +122,7 @@ const TOOLS = [
         },
         shiny: {
           type: "boolean",
-          description: "Whether to download shiny version",
+          description: "Whether to download the shiny version. The 'official' shiny set is fan-made, not official artwork.",
         },
         overwrite: {
           type: "boolean",
