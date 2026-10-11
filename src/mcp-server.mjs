@@ -156,12 +156,24 @@ export function startMcpServer() {
         }
 
         if (toolName === "calculate_weakness") {
-          const weaknesses = calculateWeaknesses(args.types || []);
+          const rawTypes = Array.isArray(args.types)
+            ? args.types
+            : typeof args.types === "string"
+              ? args.types.split(/[,/\s]+/)
+              : [];
+          if (rawTypes.length === 0) {
+            sendResponse(id, {
+              isError: true,
+              content: [{ type: "text", text: "Missing or invalid 'types' parameter. Expected array of types, e.g. ['fire', 'flying']" }],
+            });
+            return;
+          }
+          const weaknesses = calculateWeaknesses(rawTypes);
           sendResponse(id, {
             content: [
               {
                 type: "text",
-                text: JSON.stringify({ types: args.types, weaknesses }),
+                text: JSON.stringify({ types: rawTypes, weaknesses }),
               },
             ],
           });

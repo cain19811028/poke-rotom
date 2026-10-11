@@ -142,8 +142,10 @@ node index.mjs 噴火龍 --sprite official --shiny --out charizard_shiny.png
 
 ---
 
-### `$ rotom --license`
+### `$ rotom --license & 免責聲明`
 
-本專案基於 [MIT License](LICENSE) 開源。  
-寶可夢資料與圖像版權屬於 Nintendo / Creatures Inc. / GAME FREAK inc.。  
-API 資料來源於公開社群專案 [PokéAPI](https://pokeapi.co/)。
+- **程式碼授權**：基於 [MIT License](LICENSE) 開源 © 2026 [cain19811028](https://github.com/cain19811028)。
+- **商標與智財權宣告**：寶可夢（Pokémon）、角色名稱、圖鑑數值與立繪為 **Nintendo、Creatures Inc.、GAME FREAK Inc. 及 The Pokémon Company** 的註冊商標與版權所有。
+- **非官方聲明**：本專案為獨立非營利之個人／開發者學習工具，與任天堂（Nintendo）或寶可夢公司（The Pokémon Company）**無任何官方隸屬、贊助或合作關係**。
+- **合理使用與資料來源**：圖鑑數值與圖像資源透過開源社群專案 [PokéAPI](https://pokeapi.co/) 引用，僅供技術研究、非營利與個人學習用途。使用者應自行遵守相關智財規範，不得將下載之立繪資產用於商業營利。
+- **下架與聯絡管道**：權利人若對內容有任何疑慮，請透過 GitHub Issue 聯繫專案作者，將第一時間配合處置。

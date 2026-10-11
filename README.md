@@ -141,8 +141,10 @@ node index.mjs charizard --sprite official --shiny --out charizard_shiny.png
 
 ---
 
-### `$ rotom --license`
+### `$ rotom --license & disclaimer`
 
-Licensed under the [MIT License](LICENSE).  
-Pokémon and Pokémon character names are trademarks of Nintendo / Creatures Inc. / GAME FREAK inc.  
-API data sourced from the open-source community project [PokéAPI](https://pokeapi.co/).
+- **Code License**: Licensed under the [MIT License](LICENSE) © 2026 [cain19811028](https://github.com/cain19811028).
+- **Trademark & IP Disclaimer**: Pokémon and Pokémon character names, sprites, and trademarks are the intellectual property of **Nintendo, Creatures Inc., GAME FREAK inc., and The Pokémon Company**.
+- **Non-Affiliation**: This is an independent, non-profit fan-made developer tool for educational and AI agent integration purposes. It is **not** endorsed by or affiliated with Nintendo, GAME FREAK, Creatures Inc., or The Pokémon Company.
+- **Fair Use & Data Source**: Game data and sprites are provided via the open-source community [PokéAPI](https://pokeapi.co/) for personal, non-commercial reference. Users are solely responsible for compliance with applicable IP laws when using downloaded assets.
+- **Takedown Notice**: If you are a rights holder and have concerns, please open a GitHub Issue or contact the repository author for prompt removal or resolution.

@@ -6,6 +6,38 @@ export const TYPES = [
   "rock", "ghost", "dragon", "dark", "steel", "fairy"
 ];
 
+// Traditional Chinese type names mapping
+export const TYPE_NAMES_ZH = {
+  normal: "一般",
+  fire: "火",
+  water: "水",
+  electric: "電",
+  grass: "草",
+  ice: "冰",
+  fighting: "格鬥",
+  poison: "毒",
+  ground: "地面",
+  flying: "飛行",
+  psychic: "超能力",
+  bug: "蟲",
+  rock: "岩石",
+  ghost: "幽靈",
+  dragon: "龍",
+  dark: "惡",
+  steel: "鋼",
+  fairy: "妖精"
+};
+
+// Traditional Chinese base stats label mapping
+export const STAT_NAMES_ZH = {
+  hp: "HP",
+  atk: "攻",
+  def: "防",
+  spa: "特攻",
+  spd: "特防",
+  spe: "速"
+};
+
 // attackType -> { defenseType: multiplier }
 export const DAMAGE_MULTIPLIERS = {
   normal:   { rock: 0.5, ghost: 0, steel: 0.5 },
@@ -30,11 +62,20 @@ export const DAMAGE_MULTIPLIERS = {
 
 /**
  * Calculate defensive weaknesses and resistances for given defending type(s).
- * @param {string[]} defTypes - e.g. ["fire", "flying"]
+ * @param {string[]|string} defTypes - e.g. ["fire", "flying"]
  * @returns {Record<string, string[]>} - e.g. { "4x": ["rock"], "2x": ["water", "electric"], ... }
  */
 export function calculateWeaknesses(defTypes) {
-  const normalizedDefTypes = defTypes.map(t => t.toLowerCase().trim()).filter(Boolean);
+  const typesArr = Array.isArray(defTypes)
+    ? defTypes
+    : typeof defTypes === "string"
+      ? defTypes.split(/[,/\s]+/)
+      : [];
+  const normalizedDefTypes = typesArr
+    .filter((t) => typeof t === "string")
+    .map((t) => t.toLowerCase().trim())
+    .filter(Boolean);
+
   const multipliers = {};
 
   for (const atkType of TYPES) {

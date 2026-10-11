@@ -9,9 +9,18 @@ echo "⚡ Installing $SKILL_NAME..."
 
 copy_to() {
   local dst="$1"
+  if [[ -z "$dst" || "$dst" != *"$SKILL_NAME"* ]]; then
+    echo "❌ Safety check failed: invalid destination path: $dst" >&2
+    exit 1
+  fi
   mkdir -p "$dst"
   rm -rf "$dst"/*
-  cp -R "$SRC"/* "$dst/"
+  for item in "$SRC"/*; do
+    local base="$(basename "$item")"
+    if [[ "$base" != ".git" ]]; then
+      cp -R "$item" "$dst/"
+    fi
+  done
   echo "✔ Installed skill to: $dst"
 }
 

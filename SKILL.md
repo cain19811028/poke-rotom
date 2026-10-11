@@ -5,6 +5,9 @@ description: |
   Look up Pokémon by National Dex ID, English name, Traditional/Simplified Chinese, or Japanese name.
   Computes base stats (BST), defensive battle weaknesses, and downloads official HD sprites.
   Zero API Key required. Extremely token-efficient.
+author: cain19811028
+repository: https://github.com/cain19811028/poke-rotom
+license: MIT
 ---
 
 # poke-rotom (Rotom Pokédex)
@@ -42,8 +45,9 @@ node index.mjs 25 --sprite gen3 --out pikachu_emerald.png
 
 ## Options
 
-- `--brief`: Outputs a single concise line (ID, names, types, BST, 4x/2x weaknesses). Saves up to 99% tokens.
+- `--brief`: Outputs a single concise line (ID, names, types, BST, 4x/2x weaknesses). Saves up to 99% tokens. Automatically formats in Traditional Chinese when query contains Chinese.
 - `--json`: Default output mode. Outputs compact JSON.
+- `--lang <en|zh-tw>`: Forces output language mode (default: auto-detected).
 - `--sprite <style>`:
   - `official`: High-resolution 475x475 official transparent artwork (Default).
   - `showdown`: Pokémon Showdown animated battle GIF.
@@ -58,3 +62,8 @@ This tool can also be run directly as a standard Model Context Protocol (MCP) se
 ```bash
 node index.mjs --mcp
 ```
+
+## Author & Legal Notice
+
+- **Author**: [cain19811028](https://github.com/cain19811028)
+- **Legal**: Pokémon and Pokémon character names are trademarks of Nintendo, Creatures Inc., GAME FREAK Inc., and The Pokémon Company. This is an unofficial, non-commercial fan-made tool.

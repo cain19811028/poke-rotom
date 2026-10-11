@@ -12,11 +12,14 @@ $ClaudeSkills = Join-Path $HOME ".claude\skills\$SkillName"
 $CursorSkills = Join-Path $HOME ".cursor\skills\$SkillName"
 
 function Copy-SkillDir ($Destination) {
+    if (-not $Destination -or -not $Destination.EndsWith($SkillName)) {
+        throw "Safety error: Invalid destination path $Destination"
+    }
     if (Test-Path $Destination) {
         Remove-Item -Recurse -Force $Destination
     }
     New-Item -ItemType Directory -Force -Path $Destination | Out-Null
-    Copy-Item -Recurse -Force "$RepoRoot\*" $Destination
+    Get-ChildItem -Path $RepoRoot -Exclude ".git" | Copy-Item -Destination $Destination -Recurse -Force
     Write-Host "✔ Installed skill to: $Destination" -ForegroundColor Green
 }
 

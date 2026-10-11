@@ -1,6 +1,7 @@
 #!/usr/bin/env node
 import { findPokemon, getSpriteUrl, downloadSprite } from "./src/lookup.mjs";
 import { startMcpServer } from "./src/mcp-server.mjs";
+import { TYPE_NAMES_ZH } from "./src/type-chart.mjs";
 
 function parseArgs(argv) {
   const flags = {};
@@ -22,7 +23,9 @@ function parseArgs(argv) {
       flags.sprite = arg.slice("--sprite=".length);
     } else if (arg.startsWith("--out=")) {
       flags.out = arg.slice("--out=".length);
-    } else if (arg === "--sprite" || arg === "--out") {
+    } else if (arg.startsWith("--lang=")) {
+      flags.lang = arg.slice("--lang=".length);
+    } else if (arg === "--sprite" || arg === "--out" || arg === "--lang") {
       const key = arg.slice(2);
       const next = argv[i + 1];
       if (next !== undefined && !next.startsWith("--")) {
@@ -59,6 +62,7 @@ Usage:
 Options:
   --brief             Print ultra-compact single line summary (maximum token savings)
   --json              Print structured JSON (default)
+  --lang <en|zh-tw>   Language mode for output (default: auto-detected from query)
   --sprite <style>    Sprite set: 'official' (default), 'showdown' (GIF), 'gen3' (pixel), 'default'
   --shiny             Fetch shiny / alternate colorway
   --out <path>        Download sprite image to specified file path
@@ -66,7 +70,7 @@ Options:
   --help, -h          Show this help message
 
 Examples:
-  node index.mjs 噴火龍
+  node index.mjs 噴火龍 --brief
   node index.mjs charizard --brief
   node index.mjs 25 --sprite official --shiny --out pikachu_shiny.png
   node index.mjs リザードン --sprite showdown --out charizard.gif
@@ -129,14 +133,40 @@ async function main() {
     }
   }
 
+  const isZh =
+    flags.lang === "zh" ||
+    flags.lang === "zh-tw" ||
+    flags.lang === "zh_tw" ||
+    (!flags.lang && /[\u4e00-\u9fa5]/.test(query));
+
   // 3. Ultra-compact brief mode
   if (flags.brief) {
+    const padId = String(pokemon.id).padStart(3, "0");
+    const outStr = downloadedPath ? ` | Saved: ${downloadedPath}` : "";
+
+    if (isZh) {
+      const zhTypes = pokemon.types.map((t) => TYPE_NAMES_ZH[t] || t).join("/");
+      const zhStats = `BST:${pokemon.stats.bst} (HP:${pokemon.stats.hp} 攻:${pokemon.stats.atk} 防:${pokemon.stats.def} 特攻:${pokemon.stats.spa} 特防:${pokemon.stats.spd} 速:${pokemon.stats.spe})`;
+
+      const zhWeaknesses = [];
+      if (pokemon.weaknesses?.["4x"]?.length) {
+        zhWeaknesses.push(...pokemon.weaknesses["4x"].map((t) => `${TYPE_NAMES_ZH[t] || t}(4x)`));
+      }
+      if (pokemon.weaknesses?.["2x"]?.length) {
+        zhWeaknesses.push(...pokemon.weaknesses["2x"].map((t) => `${TYPE_NAMES_ZH[t] || t}(2x)`));
+      }
+      const weakStr = zhWeaknesses.length ? ` | 弱點: ${zhWeaknesses.join(", ")}` : "";
+
+      console.log(
+        `#${padId} ${pokemon.zh_tw || pokemon.en} (${pokemon.en}) | ${zhTypes} | ${zhStats}${weakStr}${outStr}`
+      );
+      return;
+    }
+
     const weaknesses = [];
     if (pokemon.weaknesses?.["4x"]?.length) weaknesses.push(`4x:${pokemon.weaknesses["4x"].join(",")}`);
     if (pokemon.weaknesses?.["2x"]?.length) weaknesses.push(`2x:${pokemon.weaknesses["2x"].join(",")}`);
     const weakStr = weaknesses.length ? ` | Weak: ${weaknesses.join(" ")}` : "";
-    const padId = String(pokemon.id).padStart(3, "0");
-    const outStr = downloadedPath ? ` | Saved: ${downloadedPath}` : "";
 
     console.log(
       `#${padId} ${pokemon.zh_tw || pokemon.en} (${pokemon.en}) | ${pokemon.types.join("/")} | BST:${pokemon.stats.bst} (HP:${pokemon.stats.hp} Atk:${pokemon.stats.atk} Def:${pokemon.stats.def} SpA:${pokemon.stats.spa} SpD:${pokemon.stats.spd} Spe:${pokemon.stats.spe})${weakStr}${outStr}`
@@ -147,6 +177,7 @@ async function main() {
   // 4. Structured JSON mode (default)
   const output = {
     ...pokemon,
+    types_zh: pokemon.types.map((t) => TYPE_NAMES_ZH[t] || t),
     sprite: spriteUrl,
     sprite_style: spriteSet,
     is_shiny: isShiny,

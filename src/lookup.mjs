@@ -83,6 +83,12 @@ function enrichPokemon(p) {
  * @param {string} spriteSet - "official", "showdown", "gen3", "default"
  * @param {boolean} shiny
  */
+/**
+ * Get Sprite URL based on set and shiny flag.
+ * @param {number} id
+ * @param {string} spriteSet - "official", "showdown", "gen3", "default"
+ * @param {boolean} shiny
+ */
 export function getSpriteUrl(id, spriteSet = "official", shiny = false) {
   const isShiny = Boolean(shiny);
   const set = (typeof spriteSet === "string" ? spriteSet : "official").toLowerCase();
@@ -93,7 +99,12 @@ export function getSpriteUrl(id, spriteSet = "official", shiny = false) {
     case "showdown":
       return `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/showdown/${isShiny ? "shiny/" : ""}${id}.gif`;
     case "gen3":
-      return `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/versions/generation-iii/emerald/${id}.png`;
+      // Emerald sprites only exist for Gen 1~3 (#1 to #386)
+      if (id <= 386) {
+        return `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/versions/generation-iii/emerald/${isShiny ? "shiny/" : ""}${id}.png`;
+      }
+      // Automatic fallback to official artwork for Gen 4+ Pokémon
+      return `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/${isShiny ? "shiny/" : ""}${id}.png`;
     case "default":
     default:
       return `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/${isShiny ? "shiny/" : ""}${id}.png`;
@@ -105,7 +116,8 @@ const ALLOWED_ORIGIN_PREFIX = "https://raw.githubusercontent.com/PokeAPI/";
 
 /**
  * Download sprite to target file path.
- * Enforces image extension restriction, URL origin validation, and directory boundary check (CWD).
+ * Enforces image extension restriction, URL origin validation, directory boundary check (CWD),
+ * and automatic fallback to official artwork when target style returns 404.
  * @param {string} url
  * @param {string} outPath
  * @param {object} [options]
@@ -144,10 +156,25 @@ export async function downloadSprite(url, outPath, options = {}) {
     throw new Error(`Target path is an existing directory: ${fullPath}`);
   }
 
-  const res = await fetch(url, {
+  let res = await fetch(url, {
     headers: { "User-Agent": "poke-rotom" },
     signal: AbortSignal.timeout(30000),
   });
+
+  // If a showdown GIF or custom sprite returns 404, fallback to official HD artwork
+  if (!res.ok && res.status === 404 && !url.includes("official-artwork")) {
+    const numMatch = url.match(/\/(\d+)\.(gif|png)$/);
+    if (numMatch) {
+      const pokeId = numMatch[1];
+      const isShinyUrl = url.includes("/shiny/");
+      const fallbackUrl = `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/${isShinyUrl ? "shiny/" : ""}${pokeId}.png`;
+      console.warn(`⚠️ Sprite not available at requested style (${url}), falling back to official artwork...`);
+      res = await fetch(fallbackUrl, {
+        headers: { "User-Agent": "poke-rotom" },
+        signal: AbortSignal.timeout(30000),
+      });
+    }
+  }
 
   if (!res.ok) {
     throw new Error(`Failed to download sprite: HTTP ${res.status} from ${url}`);
