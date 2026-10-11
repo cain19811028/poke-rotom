@@ -2,7 +2,7 @@
 // Copyright (c) 2026 cain19811028
 
 import readline from "node:readline";
-import { searchPokemon, getSpriteUrl, downloadSprite } from "./lookup.mjs";
+import { searchPokemon, spriteUrlFor, downloadSprite } from "./lookup.mjs";
 import { calculateWeaknesses, calculateStabCoverage, TYPES } from "./type-chart.mjs";
 
 // Unknown or extra types used to be skipped silently, which returned a confident wrong matchup.
@@ -49,7 +49,7 @@ const TOOLS = [
       properties: {
         query: {
           type: "string",
-          description: "Pokémon name in English, Traditional Chinese (繁中), Simplified Chinese (簡中), Japanese (日文), or National Dex ID (e.g. '噴火龍', 'charizard', '25')",
+          description: "Pokémon name in English, Traditional Chinese (繁中), Simplified Chinese (簡中), Japanese (日文), or National Dex ID (e.g. '噴火龍', 'charizard', '25'). Alternate forms with their own types or stats are separate entries (e.g. 'wash rotom', 'alolan ninetales', 'mega charizard x'); a species' entry lists their slugs in 'forms'.",
         },
         sprite: {
           type: "string",
@@ -186,7 +186,7 @@ export function startMcpServer() {
             sendResponse(id, notFoundResult(args.query, search));
             return;
           }
-          const spriteUrl = getSpriteUrl(pokemon.id, args.sprite || "official", args.shiny || false);
+          const spriteUrl = spriteUrlFor(pokemon, args.sprite || "official", args.shiny || false);
           sendResponse(id, {
             content: [
               {
@@ -239,7 +239,7 @@ export function startMcpServer() {
             sendResponse(id, notFoundResult(args.query, search));
             return;
           }
-          const spriteUrl = getSpriteUrl(pokemon.id, args.sprite || "official", args.shiny || false);
+          const spriteUrl = spriteUrlFor(pokemon, args.sprite || "official", args.shiny || false);
           const savedPath = await downloadSprite(spriteUrl, args.out, {
             root: process.env.VOLTDEX_OUTPUT_DIR || process.cwd(),
             overwrite: args.overwrite === true,

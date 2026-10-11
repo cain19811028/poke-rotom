@@ -53,6 +53,18 @@ test("CLI argument validation", async (t) => {
   });
 });
 
+test("CLI alternate forms", async (t) => {
+  await t.test("reports a form's own types and sprite", () => {
+    const res = cli("wash rotom");
+
+    assert.equal(res.status, 0, res.stderr);
+    const body = JSON.parse(res.stdout);
+    assert.equal(body.slug, "rotom-wash");
+    assert.deepEqual(body.types, ["electric", "water"]);
+    assert.match(body.sprite, /\/official-artwork\/10009\.png$/);
+  });
+});
+
 test("CLI ambiguous query", async (t) => {
   await t.test("fails and lists candidates instead of printing a guess", () => {
     const res = cli("char", "--brief");

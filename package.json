@@ -20,6 +20,7 @@
     "start": "node index.mjs",
     "test": "node --test test/*.test.mjs",
     "mcp": "node index.mjs --mcp",
+    "build:data": "node scripts/build-data.mjs",
     "build:hero": "node scripts/build-hero.mjs"
   },
   "keywords": [

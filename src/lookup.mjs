@@ -10,11 +10,22 @@ const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const DB_PATH = path.resolve(__dirname, "../data/pokedex.json");
 
 let pokedex = null;
+let formsBySpecies = null;
 
+/**
+ * Every entry: one default entry per species, then the alternate forms whose types or base
+ * stats differ. A form carries `form_of` (its species' slug) and `pokeapi_id` (for sprites).
+ * @returns {object[]}
+ */
 export function loadPokedex() {
   if (!pokedex) {
     const raw = fs.readFileSync(DB_PATH, "utf-8");
     pokedex = JSON.parse(raw);
+    formsBySpecies = new Map();
+    for (const p of pokedex.filter((p) => p.form_of)) {
+      if (!formsBySpecies.has(p.form_of)) formsBySpecies.set(p.form_of, []);
+      formsBySpecies.get(p.form_of).push(p.slug);
+    }
   }
   return pokedex;
 }
@@ -61,11 +72,11 @@ export function searchPokemon(rawQuery) {
   const qStr = String(rawQuery).trim();
   if (!qStr) return none;
 
-  // 1. National Dex ID (#025, 25)
+  // 1. National Dex ID (#025, 25) names a species, so it returns the default form.
   const idMatch = /^#?(\d+)$/.exec(qStr);
   if (idMatch) {
     const id = parseInt(idMatch[1], 10);
-    const found = loadPokedex().find((p) => p.id === id);
+    const found = loadPokedex().find((p) => p.id === id && !p.form_of);
     if (found) return { match: enrichPokemon(found), candidates: [], total: 1 };
   }
 
@@ -78,6 +89,12 @@ export function searchPokemon(rawQuery) {
   const hits = exact.length > 0 ? exact : index.filter((e) => e.names.some((n) => n.includes(q)));
   if (hits.length === 1) {
     return { match: enrichPokemon(hits[0].pokemon), candidates: [], total: 1 };
+  }
+  // "roto" fits Rotom and its five forms: one species, so its default form is the answer.
+  // Forms without their default entry ("mega charizard": X and Y) stay ambiguous.
+  const defaults = hits.filter((e) => !e.pokemon.form_of);
+  if (defaults.length === 1 && hits.every((e) => e.pokemon.id === defaults[0].pokemon.id)) {
+    return { match: enrichPokemon(defaults[0].pokemon), candidates: [], total: 1 };
   }
   return { match: null, candidates: hits.slice(0, MAX_CANDIDATES).map((e) => e.pokemon), total: hits.length };
 }
@@ -92,22 +109,30 @@ export function findPokemon(rawQuery) {
 }
 
 /**
- * Enrich Pokémon object with weaknesses and STAB offensive advantages.
+ * Enrich Pokémon object with weaknesses, STAB offensive advantages, and the slugs of its
+ * alternate forms when it is a species' default entry that has any.
  */
 function enrichPokemon(p) {
+  const forms = formsBySpecies.get(p.slug);
   return {
     ...p,
+    ...(forms && !p.form_of ? { forms } : {}),
     weaknesses: calculateWeaknesses(p.types || []),
     stab_coverage: calculateStabCoverage(p.types || []),
   };
 }
 
 /**
- * Get Sprite URL based on set and shiny flag.
- * @param {number} id
- * @param {string} spriteSet - "official", "showdown", "gen3", "default"
+ * Sprite URL for a looked-up entry. PokeAPI/sprites files alternate forms under their PokéAPI
+ * id (10009 for Wash Rotom), not under the National Dex number they share with the species.
+ * @param {object} pokemon - an entry from searchPokemon / findPokemon
+ * @param {string} spriteSet
  * @param {boolean} shiny
  */
+export function spriteUrlFor(pokemon, spriteSet, shiny) {
+  return getSpriteUrl(pokemon.pokeapi_id ?? pokemon.id, spriteSet, shiny);
+}
+
 /**
  * Get Sprite URL based on set and shiny flag.
  * @param {number} id

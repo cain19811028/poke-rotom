@@ -2,7 +2,7 @@
 // SPDX-License-Identifier: MIT
 // Copyright (c) 2026 cain19811028
 import { parseArgs } from "node:util";
-import { searchPokemon, getSpriteUrl, downloadSprite } from "./src/lookup.mjs";
+import { searchPokemon, spriteUrlFor, downloadSprite } from "./src/lookup.mjs";
 import { startMcpServer } from "./src/mcp-server.mjs";
 import { TYPE_NAMES_ZH } from "./src/type-chart.mjs";
 
@@ -117,7 +117,7 @@ async function main() {
 
   const spriteSet = flags.sprite || "official";
   const isShiny = Boolean(flags.shiny);
-  const spriteUrl = getSpriteUrl(pokemon.id, spriteSet, isShiny);
+  const spriteUrl = spriteUrlFor(pokemon, spriteSet, isShiny);
 
   // Download if --out specified
   let downloadedPath = null;

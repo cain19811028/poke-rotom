@@ -4,9 +4,26 @@ import { findPokemon, searchPokemon, loadPokedex, getSpriteUrl, downloadSprite }
 import { calculateWeaknesses, calculateStabCoverage, TYPES } from "../src/type-chart.mjs";
 
 test("Pokédex Data Integrity", async (t) => {
-  await t.test("contains all 1025 Gen 1~9 Pokémon entries", () => {
+  await t.test("contains one default entry for each of the 1025 Gen 1~9 species", () => {
+    const species = loadPokedex().filter((p) => !p.form_of);
+    assert.equal(species.length, 1025);
+    assert.deepEqual(
+      species.map((p) => p.id),
+      Array.from({ length: 1025 }, (_, i) => i + 1)
+    );
+  });
+
+  await t.test("ties every alternate form to its species and its PokéAPI id", () => {
     const list = loadPokedex();
-    assert.equal(list.length, 1025);
+    const forms = list.filter((p) => p.form_of);
+    assert.ok(forms.length > 0);
+    for (const f of forms) {
+      const base = list.find((p) => p.slug === f.form_of && !p.form_of);
+      assert.ok(base, `${f.slug} points at unknown species ${f.form_of}`);
+      assert.equal(f.id, base.id, f.slug);
+      assert.ok(Number.isInteger(f.pokeapi_id) && f.pokeapi_id > 10000, f.slug);
+      assert.notDeepEqual([f.types, f.stats], [base.types, base.stats], `${f.slug} duplicates ${base.slug}`);
+    }
   });
 
   await t.test("every entry has valid schema and accurate BST calculation", () => {
@@ -118,6 +135,43 @@ test("Partial and ambiguous queries (searchPokemon)", async (t) => {
     // ド and ト must not be folded together: リザードン is Charizard, not a typo-tolerant guess.
     assert.equal(findPokemon("リザードン").id, 6);
     assert.equal(findPokemon("リサートン"), null);
+  });
+});
+
+test("Alternate forms", async (t) => {
+  await t.test("finds a form by any of its names", () => {
+    for (const query of ["wash rotom", "Rotom Wash", "rotom-wash", "清洗洛托姆", "ウォッシュロトム"]) {
+      const p = findPokemon(query);
+      assert.equal(p?.slug, "rotom-wash", query);
+      assert.deepEqual(p.types, ["electric", "water"]);
+    }
+    assert.deepEqual(findPokemon("Alolan Ninetales").types, ["ice", "fairy"]);
+  });
+
+  await t.test("computes a form's matchups from its own types", () => {
+    assert.deepEqual(findPokemon("rotom").weaknesses["0x"], ["normal", "fighting"]);
+    assert.equal(findPokemon("wash rotom").weaknesses["0x"], undefined);
+  });
+
+  await t.test("returns the default form for a National Dex ID", () => {
+    assert.equal(findPokemon(479).slug, "rotom");
+    assert.equal(findPokemon("#006").slug, "charizard");
+  });
+
+  await t.test("resolves a partial name that only fits one species to its default form", () => {
+    assert.equal(findPokemon("roto").slug, "rotom");
+    assert.equal(findPokemon("charizar").slug, "charizard");
+  });
+
+  await t.test("keeps forms of one species ambiguous among themselves", () => {
+    const { match, candidates } = searchPokemon("mega charizard");
+    assert.equal(match, null);
+    assert.deepEqual(candidates.map((p) => p.slug).sort(), ["charizard-mega-x", "charizard-mega-y"]);
+  });
+
+  await t.test("lists the forms on the default entry", () => {
+    assert.deepEqual(findPokemon("rotom").forms, ["rotom-heat", "rotom-wash", "rotom-frost", "rotom-fan", "rotom-mow"]);
+    assert.equal(findPokemon("bulbasaur").forms, undefined);
   });
 });
 
