@@ -53,6 +53,17 @@ test("CLI argument validation", async (t) => {
   });
 });
 
+test("CLI ambiguous query", async (t) => {
+  await t.test("fails and lists candidates instead of printing a guess", () => {
+    const res = cli("char", "--brief");
+
+    assert.equal(res.status, 1);
+    assert.equal(res.stdout, "");
+    assert.match(res.stderr, /Charmander/);
+    assert.match(res.stderr, /Charizard/);
+  });
+});
+
 test("CLI exit status", async (t) => {
   await t.test("exits non-zero when the requested download fails", () => {
     const res = cli("25", "--out", "pikachu.txt");

@@ -2,7 +2,7 @@
 // Copyright (c) 2026 cain19811028
 
 import readline from "node:readline";
-import { findPokemon, getSpriteUrl, downloadSprite } from "./lookup.mjs";
+import { searchPokemon, getSpriteUrl, downloadSprite } from "./lookup.mjs";
 import { calculateWeaknesses, calculateStabCoverage, TYPES } from "./type-chart.mjs";
 
 // Unknown or extra types used to be skipped silently, which returned a confident wrong matchup.
@@ -25,10 +25,25 @@ function parseTypes(raw) {
   return { types };
 }
 
+// A miss is a tool error the agent can act on; an ambiguous query lists candidates to retry with.
+function notFoundResult(query, { candidates, total }) {
+  if (candidates.length === 0) {
+    return { isError: true, content: [{ type: "text", text: `Pokémon not found for query: "${query}"` }] };
+  }
+  const body = {
+    error: "ambiguous",
+    query,
+    total,
+    candidates: candidates.map(({ id, slug, en, zh_tw }) => ({ id, slug, en, zh_tw })),
+    hint: "Retry with one candidate's slug.",
+  };
+  return { isError: true, content: [{ type: "text", text: JSON.stringify(body) }] };
+}
+
 const TOOLS = [
   {
     name: "lookup_pokemon",
-    description: "Look up Pokémon info by name (EN/ZH/JA) or National Dex ID. Returns multi-lingual names, types, base stats (BST), battle weaknesses, and sprite URL. Ultra token-efficient.",
+    description: "Look up Pokémon info by name (EN/ZH/JA) or National Dex ID. Returns multi-lingual names, types, base stats (BST), battle weaknesses, and sprite URL. A partial name that fits several Pokémon returns an error listing candidates instead of a guess.",
     inputSchema: {
       type: "object",
       properties: {
@@ -165,12 +180,10 @@ export function startMcpServer() {
 
       try {
         if (toolName === "lookup_pokemon") {
-          const pokemon = findPokemon(args.query);
+          const search = searchPokemon(args.query);
+          const pokemon = search.match;
           if (!pokemon) {
-            sendResponse(id, {
-              isError: true,
-              content: [{ type: "text", text: `Pokémon not found for query: "${args.query}"` }],
-            });
+            sendResponse(id, notFoundResult(args.query, search));
             return;
           }
           const spriteUrl = getSpriteUrl(pokemon.id, args.sprite || "official", args.shiny || false);
@@ -220,12 +233,10 @@ export function startMcpServer() {
             return;
           }
 
-          const pokemon = findPokemon(args.query);
+          const search = searchPokemon(args.query);
+          const pokemon = search.match;
           if (!pokemon) {
-            sendResponse(id, {
-              isError: true,
-              content: [{ type: "text", text: `Pokémon not found for query: "${args.query}"` }],
-            });
+            sendResponse(id, notFoundResult(args.query, search));
             return;
           }
           const spriteUrl = getSpriteUrl(pokemon.id, args.sprite || "official", args.shiny || false);

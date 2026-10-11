@@ -1,6 +1,6 @@
 import test from "node:test";
 import assert from "node:assert/strict";
-import { findPokemon, loadPokedex, getSpriteUrl, downloadSprite } from "../src/lookup.mjs";
+import { findPokemon, searchPokemon, loadPokedex, getSpriteUrl, downloadSprite } from "../src/lookup.mjs";
 import { calculateWeaknesses, calculateStabCoverage, TYPES } from "../src/type-chart.mjs";
 
 test("Pokédex Data Integrity", async (t) => {
@@ -62,6 +62,62 @@ test("Multilingual Lookup Engine (findPokemon)", async (t) => {
     assert.equal(findPokemon("not-a-pokemon"), null);
     assert.equal(findPokemon(""), null);
     assert.equal(findPokemon(null), null);
+  });
+});
+
+test("Partial and ambiguous queries (searchPokemon)", async (t) => {
+  await t.test("returns candidates instead of guessing when a partial query matches several Pokémon", () => {
+    for (const query of ["a", "火", "char"]) {
+      const { match, candidates, total } = searchPokemon(query);
+      assert.equal(match, null, `"${query}" must not resolve to a single Pokémon`);
+      assert.ok(candidates.length > 1, `"${query}" should list candidates`);
+      assert.ok(total >= candidates.length);
+      assert.equal(findPokemon(query), null);
+    }
+    const slugs = searchPokemon("char").candidates.map((p) => p.slug);
+    assert.ok(["charmander", "charmeleon", "charizard"].every((s) => slugs.includes(s)), slugs.join(","));
+  });
+
+  await t.test("caps the candidate list but reports the full count", () => {
+    const { candidates, total } = searchPokemon("a");
+    assert.ok(candidates.length <= 10);
+    assert.ok(total > candidates.length);
+  });
+
+  await t.test("still resolves a partial query that matches exactly one Pokémon", () => {
+    assert.equal(findPokemon("pikach").slug, "pikachu");
+    assert.equal(findPokemon("ピカチュ").slug, "pikachu");
+  });
+
+  await t.test("resolves every name of every entry back to that entry", () => {
+    for (const p of loadPokedex()) {
+      for (const field of ["slug", "en", "zh_tw", "zh_cn", "ja"]) {
+        assert.equal(findPokemon(p[field])?.slug, p.slug, `${field} "${p[field]}"`);
+      }
+    }
+  });
+
+  await t.test("prefers an exact name over longer names that contain it", () => {
+    assert.equal(findPokemon("mew").slug, "mew");
+    assert.equal(findPokemon("porygon").slug, "porygon");
+  });
+
+  await t.test("ignores punctuation, accents, width and gender-sign spelling differences", () => {
+    for (const query of ["farfetch'd", "Farfetch’d", "farfetchd", "FARFETCH D"]) {
+      assert.equal(findPokemon(query)?.id, 83, query);
+    }
+    assert.equal(findPokemon("Mr. Mime").id, 122);
+    assert.equal(findPokemon("type: null").id, 772);
+    assert.equal(findPokemon("Flabebe").id, 669);
+    assert.equal(findPokemon("Ｐｉｋａｃｈｕ").id, 25);
+    assert.equal(findPokemon("nidoran♀").id, 29);
+    assert.equal(findPokemon("nidoran♂").id, 32);
+  });
+
+  await t.test("keeps Japanese voiced marks significant", () => {
+    // ド and ト must not be folded together: リザードン is Charizard, not a typo-tolerant guess.
+    assert.equal(findPokemon("リザードン").id, 6);
+    assert.equal(findPokemon("リサートン"), null);
   });
 });
 

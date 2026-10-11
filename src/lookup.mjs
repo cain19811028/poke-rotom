@@ -19,55 +19,76 @@ export function loadPokedex() {
   return pokedex;
 }
 
+const MAX_CANDIDATES = 10;
+
+// Folds case, full-width forms, Latin accents, gender signs and punctuation, so "Farfetch'd",
+// "Farfetch’d" and "farfetchd" compare equal. Only the Latin combining-mark block is stripped,
+// which keeps kana voiced marks (ド vs ト) significant.
+function normalizeName(s) {
+  return s
+    .normalize("NFKD")
+    .replace(/[̀-ͯ]/g, "")
+    .normalize("NFC")
+    .toLowerCase()
+    .replace(/♀/g, "f")
+    .replace(/♂/g, "m")
+    .replace(/[^\p{L}\p{N}]/gu, "");
+}
+
+let searchIndex = null;
+
+function loadSearchIndex() {
+  if (!searchIndex) {
+    searchIndex = loadPokedex().map((p) => ({
+      pokemon: p,
+      names: [...new Set([p.slug, p.en, p.zh_tw, p.zh_cn, p.ja].map(normalizeName).filter(Boolean))],
+    }));
+  }
+  return searchIndex;
+}
+
 /**
- * Find Pokémon by ID, English name, Traditional/Simplified Chinese, or Japanese name.
+ * Search Pokémon by National Dex ID, English name, Traditional/Simplified Chinese, or Japanese name.
+ * An exact name always wins. A partial name resolves only when it fits a single Pokémon; when it
+ * fits several, they come back as candidates instead of a confident guess.
+ * @param {string|number} rawQuery
+ * @returns {{ match: object|null, candidates: object[], total: number }} `candidates` holds at most
+ *   MAX_CANDIDATES entries; `total` counts every Pokémon the query fits.
+ */
+export function searchPokemon(rawQuery) {
+  const none = { match: null, candidates: [], total: 0 };
+  if (rawQuery === undefined || rawQuery === null) return none;
+  const qStr = String(rawQuery).trim();
+  if (!qStr) return none;
+
+  // 1. National Dex ID (#025, 25)
+  const idMatch = /^#?(\d+)$/.exec(qStr);
+  if (idMatch) {
+    const id = parseInt(idMatch[1], 10);
+    const found = loadPokedex().find((p) => p.id === id);
+    if (found) return { match: enrichPokemon(found), candidates: [], total: 1 };
+  }
+
+  const q = normalizeName(qStr);
+  if (!q) return none;
+  const index = loadSearchIndex();
+
+  // 2. Exact name, otherwise 3. partial name
+  const exact = index.filter((e) => e.names.includes(q));
+  const hits = exact.length > 0 ? exact : index.filter((e) => e.names.some((n) => n.includes(q)));
+  if (hits.length === 1) {
+    return { match: enrichPokemon(hits[0].pokemon), candidates: [], total: 1 };
+  }
+  return { match: null, candidates: hits.slice(0, MAX_CANDIDATES).map((e) => e.pokemon), total: hits.length };
+}
+
+/**
+ * Find a single Pokémon; null when the query matches none or is ambiguous (see searchPokemon).
  * @param {string|number} rawQuery
  * @returns {object|null}
  */
 export function findPokemon(rawQuery) {
-  if (rawQuery === undefined || rawQuery === null) return null;
-  const list = loadPokedex();
-  const qStr = String(rawQuery).trim();
-  if (!qStr) return null;
-
-  // 1. Numeric ID matching (#025, 25)
-  const numMatch = qStr.replace(/^#/, "");
-  if (/^\d+$/.test(numMatch)) {
-    const id = parseInt(numMatch, 10);
-    const found = list.find((p) => p.id === id);
-    if (found) return enrichPokemon(found);
-  }
-
-  const qLower = qStr.toLowerCase();
-  const qNorm = qLower.replace(/[\s_.-]/g, "");
-
-  // 2. Exact match on slug, en, zh_tw, zh_cn, ja
-  for (const p of list) {
-    if (
-      p.slug.toLowerCase() === qLower ||
-      p.slug.replace(/[-]/g, "") === qNorm ||
-      p.en.toLowerCase() === qLower ||
-      p.zh_tw === qStr ||
-      p.zh_cn === qStr ||
-      p.ja === qStr
-    ) {
-      return enrichPokemon(p);
-    }
-  }
-
-  // 3. Fuzzy / Partial match
-  for (const p of list) {
-    if (
-      p.en.toLowerCase().includes(qLower) ||
-      p.zh_tw.includes(qStr) ||
-      p.zh_cn.includes(qStr) ||
-      p.ja.includes(qStr)
-    ) {
-      return enrichPokemon(p);
-    }
-  }
-
-  return null;
+  return searchPokemon(rawQuery).match;
 }
 
 /**

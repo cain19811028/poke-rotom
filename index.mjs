@@ -2,7 +2,7 @@
 // SPDX-License-Identifier: MIT
 // Copyright (c) 2026 cain19811028
 import { parseArgs } from "node:util";
-import { findPokemon, getSpriteUrl, downloadSprite } from "./src/lookup.mjs";
+import { searchPokemon, getSpriteUrl, downloadSprite } from "./src/lookup.mjs";
 import { startMcpServer } from "./src/mcp-server.mjs";
 import { TYPE_NAMES_ZH } from "./src/type-chart.mjs";
 
@@ -98,7 +98,16 @@ async function main() {
   }
 
   const query = positionals.join(" ").trim();
-  const pokemon = findPokemon(query);
+  const { match: pokemon, candidates, total } = searchPokemon(query);
+
+  if (!pokemon && candidates.length > 0) {
+    console.error(`❌ "${query}" matches ${total} Pokémon. Use a fuller name or a National Dex ID:`);
+    for (const c of candidates) {
+      console.error(`   #${String(c.id).padStart(3, "0")} ${c.en} (${c.zh_tw}) [${c.slug}]`);
+    }
+    if (total > candidates.length) console.error(`   …and ${total - candidates.length} more`);
+    process.exit(1);
+  }
 
   if (!pokemon) {
     console.error(`❌ Pokémon not found for query: "${query}"`);
