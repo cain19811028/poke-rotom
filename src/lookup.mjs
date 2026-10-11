@@ -85,7 +85,7 @@ function enrichPokemon(p) {
  */
 export function getSpriteUrl(id, spriteSet = "official", shiny = false) {
   const isShiny = Boolean(shiny);
-  const set = (spriteSet || "official").toLowerCase();
+  const set = (typeof spriteSet === "string" ? spriteSet : "official").toLowerCase();
 
   switch (set) {
     case "official":
@@ -100,21 +100,64 @@ export function getSpriteUrl(id, spriteSet = "official", shiny = false) {
   }
 }
 
+const ALLOWED_IMAGE_EXTENSIONS = new Set([".png", ".gif", ".jpg", ".jpeg", ".webp", ".svg"]);
+const ALLOWED_ORIGIN_PREFIX = "https://raw.githubusercontent.com/PokeAPI/";
+
 /**
  * Download sprite to target file path.
+ * Enforces image extension restriction, URL origin validation, and directory boundary check (CWD).
  * @param {string} url
  * @param {string} outPath
+ * @param {object} [options]
+ * @param {boolean} [options.allowOutsideCwd=false]
  * @returns {Promise<string>} absolute path of written file
  */
-export async function downloadSprite(url, outPath) {
+export async function downloadSprite(url, outPath, options = {}) {
+  if (typeof url !== "string" || !url.startsWith(ALLOWED_ORIGIN_PREFIX)) {
+    throw new Error(`Untrusted sprite URL source: ${url}`);
+  }
+
+  if (typeof outPath !== "string" || !outPath.trim()) {
+    throw new Error("Invalid output file path specified");
+  }
+
+  const ext = path.extname(outPath).toLowerCase();
+  if (!ALLOWED_IMAGE_EXTENSIONS.has(ext)) {
+    throw new Error(
+      `Disallowed file extension "${ext}". Only image formats are permitted: ${[...ALLOWED_IMAGE_EXTENSIONS].join(", ")}`
+    );
+  }
+
+  const fullPath = path.resolve(outPath);
+  const cwd = path.resolve(process.cwd());
+
+  // Prevent path traversal outside working directory
+  if (!options.allowOutsideCwd) {
+    const rel = path.relative(cwd, fullPath);
+    if (rel.startsWith("..") || path.isAbsolute(rel)) {
+      throw new Error(`Security error: Output path must be within the current working directory (${cwd})`);
+    }
+  }
+
+  // Prevent overwriting a directory
+  if (fs.existsSync(fullPath) && fs.statSync(fullPath).isDirectory()) {
+    throw new Error(`Target path is an existing directory: ${fullPath}`);
+  }
+
   const res = await fetch(url, {
     headers: { "User-Agent": "poke-rotom" },
     signal: AbortSignal.timeout(30000),
   });
+
   if (!res.ok) {
     throw new Error(`Failed to download sprite: HTTP ${res.status} from ${url}`);
   }
-  const fullPath = path.resolve(outPath);
+
+  const contentType = res.headers.get("content-type") || "";
+  if (contentType && !contentType.startsWith("image/") && !contentType.includes("octet-stream")) {
+    throw new Error(`Unexpected content-type received from source: ${contentType}`);
+  }
+
   fs.mkdirSync(path.dirname(fullPath), { recursive: true });
   const buffer = Buffer.from(await res.arrayBuffer());
   fs.writeFileSync(fullPath, buffer);

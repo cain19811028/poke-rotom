@@ -169,6 +169,21 @@ export function startMcpServer() {
         }
 
         if (toolName === "download_sprite") {
+          if (typeof args.query !== "string" || !args.query.trim()) {
+            sendResponse(id, {
+              isError: true,
+              content: [{ type: "text", text: "Missing or invalid 'query' parameter" }],
+            });
+            return;
+          }
+          if (typeof args.out !== "string" || !args.out.trim()) {
+            sendResponse(id, {
+              isError: true,
+              content: [{ type: "text", text: "Missing or invalid 'out' parameter" }],
+            });
+            return;
+          }
+
           const pokemon = findPokemon(args.query);
           if (!pokemon) {
             sendResponse(id, {

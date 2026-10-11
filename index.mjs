@@ -18,6 +18,19 @@ function parseArgs(argv) {
       flags.json = true;
     } else if (arg === "--help" || arg === "-h") {
       flags.help = true;
+    } else if (arg.startsWith("--sprite=")) {
+      flags.sprite = arg.slice("--sprite=".length);
+    } else if (arg.startsWith("--out=")) {
+      flags.out = arg.slice("--out=".length);
+    } else if (arg === "--sprite" || arg === "--out") {
+      const key = arg.slice(2);
+      const next = argv[i + 1];
+      if (next !== undefined && !next.startsWith("--")) {
+        flags[key] = next;
+        i++;
+      } else {
+        flags[key] = null;
+      }
     } else if (arg.startsWith("--")) {
       const key = arg.slice(2);
       const next = argv[i + 1];
@@ -73,6 +86,24 @@ async function main() {
   if (flags.help || (positionals.length === 0 && !flags.mcp)) {
     printHelp();
     process.exit(flags.help ? 0 : 1);
+  }
+
+  // Validate flags
+  if (flags.sprite !== undefined) {
+    if (!flags.sprite || typeof flags.sprite !== "string") {
+      console.error("❌ Missing value for --sprite option. Expected: official, showdown, gen3, or default.");
+      process.exit(1);
+    }
+    const validStyles = ["official", "showdown", "gen3", "default"];
+    if (!validStyles.includes(flags.sprite.toLowerCase())) {
+      console.error(`❌ Invalid sprite style: "${flags.sprite}". Expected one of: ${validStyles.join(", ")}`);
+      process.exit(1);
+    }
+  }
+
+  if (flags.out !== undefined && (!flags.out || typeof flags.out !== "string")) {
+    console.error("❌ Missing or invalid file path for --out option.");
+    process.exit(1);
   }
 
   const query = positionals.join(" ").trim();
