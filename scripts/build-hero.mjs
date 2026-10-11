@@ -43,10 +43,10 @@ const TYPE_COLORS = {
 
 // Each query shows off a different lookup key: English, 繁中, 日本語, national number.
 const QUERIES = [
-  { prompt: "rotom charizard", query: "charizard" },
-  { prompt: "rotom 皮卡丘 --brief", query: "皮卡丘" },
-  { prompt: "rotom ミュウツー --json", query: "ミュウツー" },
-  { prompt: "rotom 445 --sprite gen3", query: "445" },
+  { prompt: "voltdex charizard", query: "charizard" },
+  { prompt: "voltdex 皮卡丘 --brief", query: "皮卡丘" },
+  { prompt: "voltdex ミュウツー --json", query: "ミュウツー" },
+  { prompt: "voltdex 445 --sprite gen3", query: "445" },
 ];
 
 const PROMPT_SIZE = 13;
@@ -341,7 +341,7 @@ function themeCss() {
 function hero() {
   const cx = 165;
   const version = pkg.version.split(".").slice(0, 2).join(".");
-  const title = ` ◆ poke-rotom v${version} `;
+  const title = ` ◆ voltdex v${version} `;
   const { css: typingCss, body: typingBody } = typing(54, 283);
   const body = [
     `<defs><linearGradient id="scan" x1="0" y1="0" x2="0" y2="1">` +
@@ -381,7 +381,7 @@ function hero() {
   ];
   const head =
     `<svg xmlns="http://www.w3.org/2000/svg" width="${W}" height="${H}" viewBox="0 0 ${W} ${H}" ` +
-    'role="img" aria-label="poke-rotom: a pixel spark powers a field guide and types Pokédex lookups into a terminal">';
+    'role="img" aria-label="voltdex: a pixel spark powers a field guide and types Pokémon lookups into a terminal">';
   const css = themeCss() + motionCss() + typingCss +
     "@media (prefers-reduced-motion:reduce){*{animation:none!important}}";
   return [head, `<style>${css}</style>`, ...body, "</svg>"].join("\n") + "\n";

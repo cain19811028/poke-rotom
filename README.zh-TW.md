@@ -1,13 +1,13 @@
 <p align="center">
-  <img src="assets/hero.svg" width="100%" alt="poke-rotom - 洛托姆圖鑑 AI 助手 Banner">
+  <img src="assets/hero.svg" width="100%" alt="voltdex - AI 助手的非官方寶可夢資料圖鑑">
 </p>
 
 <p align="center">
-  <a href="https://github.com/cain19811028/poke-rotom"><img src="https://img.shields.io/badge/Pok%C3%A9mon-Gen%201~9%20(1025%20Pok%C3%A9mon)-FF5A1F?style=flat-square" alt="Pokémon Gen 1-9"></a>
+  <a href="https://github.com/cain19811028/voltdex"><img src="https://img.shields.io/badge/Pok%C3%A9mon-Gen%201~9%20(1025%20Pok%C3%A9mon)-FF5A1F?style=flat-square" alt="Pokémon Gen 1-9"></a>
   <a href="https://modelcontextprotocol.io/"><img src="https://img.shields.io/badge/MCP-Ready%20(Stdio)-00F0FF?style=flat-square&logo=anthropic&logoColor=black" alt="MCP Server"></a>
   <a href="https://claude.ai/"><img src="https://img.shields.io/badge/Claude%20Code-Skill%20Supported-D97757?style=flat-square&logo=claude&logoColor=white" alt="Claude Code Skill"></a>
   <a href="https://nodejs.org/"><img src="https://img.shields.io/badge/Node.js-%3E%3D%2018.3.0-339933?style=flat-square&logo=node.js&logoColor=white" alt="Node.js"></a>
-  <a href="#-rotom---benchmark-token-瘦身大作戰"><img src="https://img.shields.io/badge/Token%20Saved-99.6%25-10B981?style=flat-square&logo=speedtest&logoColor=white" alt="Token Saved 99.6%"></a>
+  <a href="#-voltdex---benchmark-token-瘦身大作戰"><img src="https://img.shields.io/badge/Token%20Saved-99.6%25-10B981?style=flat-square&logo=speedtest&logoColor=white" alt="Token Saved 99.6%"></a>
   <a href="LICENSE"><img src="https://img.shields.io/badge/license-MIT-blue?style=flat-square" alt="MIT License"></a>
 </p>
 
@@ -17,25 +17,25 @@
 
 ---
 
-### `$ rotom --whoami`
+### `$ voltdex --whoami`
 
-> ⚡ **「洛托姆（Rotom）已成功附身你的 AI 助手！」**
+> ⚡ **「替你的 AI 助手充飽電的隨身圖鑑。」**
 
-在寶可夢正傳世界中，洛托姆附身在圖鑑與手機中成為訓練家最可靠的隨身百科。  
-**`poke-rotom`** 是專為 **AI Coding Agent（Claude Code、Cursor、Gemini CLI 等）** 量身打造的**超輕量寶可夢 MCP Server & Skill 雙模助手**。
+**`voltdex`** 是專為 **AI Coding Agent（Claude Code、Cursor、Gemini CLI 等）** 量身打造的非官方**超輕量寶可夢資料 MCP Server & Skill 雙模工具**。  
+吉祥物 Spark 是一團住在圖鑑裡的小電光，每一次查詢都由它供電。
 
 徹底解決直接調用 PokéAPI 官方原生 REST API 時容易引發的 **「404 報錯、官方不支援中文輸入、單隻資料回傳高達 200KB（40,000+ Tokens）巨型 JSON、缺乏對戰弱點計算」** 等痛點，提供極速、精準且超省 Token 的全新圖鑑體驗。
 
 ---
 
-### `$ rotom --features`
+### `$ voltdex --features`
 
 - 🌐 **多國語言秒查（繁中 / 簡中 / 英文 / 日文 / 編號）**
   - 內建離線圖鑑索引表，輸入 `噴火龍`、`皮卡丘`、`リザードン`、`charizard` 或 `25` 皆可秒回。
   - 基本資訊查詢 **0 網路請求、0 延遲（5ms 本地秒回）**，杜絕英文拼寫猜測與 404 報錯。
 - ⚡ **Token 暴省 99.6%（拒絕 200KB 巨型 JSON）**
   - PokéAPI 官方原生端點單隻回傳高達 200KB（包含所有歷代學習機、形態與各語系多餘資訊）。
-  - `poke-rotom` 在本機預先萃取純粹精華，將 **~40,000 tokens 壓縮至不到 150 tokens**，大幅延長對話上下文壽命。
+  - `voltdex` 在本機預先萃取純粹精華，將 **~40,000 tokens 壓縮至不到 150 tokens**，大幅延長對話上下文壽命。
 - 🛡️ **戰鬥數值與弱點相剋計算器**
   - 一鍵獲取六維種族值（HP / 物攻 / 物防 / 特攻 / 特防 / 速度）與總和（BST）。
   - 自動計算防禦面屬性弱點倍率（4x 致命弱點、2x 弱點、0.5x 抗性、0x 無效），對戰分析一目瞭然。
@@ -47,11 +47,11 @@
 
 ---
 
-### `$ rotom --benchmark (Token 瘦身大作戰)`
+### `$ voltdex --benchmark (Token 瘦身大作戰)`
 
 當 AI Agent 需要查詢一隻寶可夢的完整數值與背景時：
 
-| 評估維度 | PokéAPI 官方原生 REST API (`pokeapi.co`) | `poke-rotom` 最佳化處理 | 效益改善 |
+| 評估維度 | PokéAPI 官方原生 REST API (`pokeapi.co`) | `voltdex` 最佳化處理 | 效益改善 |
 | :--- | :--- | :--- | :--- |
 | **回應大小 (Payload)** | `~200,000 Bytes` (200 KB) | **`~350 Bytes`** | 🪶 **縮小 99.8%** |
 | **Token 消耗** | **~40,000 Tokens** / 次 | **~120 Tokens** / 次 | 💰 **節省 99.6% 費用與空間** |
@@ -61,7 +61,7 @@
 
 ---
 
-### `$ rotom query 噴火龍 --output demo`
+### `$ voltdex query 噴火龍 --output demo`
 
 #### 1. 精煉 JSON 模式 (`--json`，預設)
 ```json
@@ -87,25 +87,25 @@ $ node index.mjs 噴火龍 --brief
 
 ---
 
-### `$ rotom --install (安裝與整合指南)`
+### `$ voltdex --install (安裝與整合指南)`
 
-`poke-rotom` 支援隨插即用的 Agent Skill 與標準 MCP Server 兩種整合方式：
+`voltdex` 支援隨插即用的 Agent Skill 與標準 MCP Server 兩種整合方式：
 
 #### 方案 A：作為 Agent 技能（Claude Code / Cursor / 專案 Skills）
 先將專案 Clone 至本機：
 ```bash
-git clone https://github.com/cain19811028/poke-rotom.git
+git clone https://github.com/cain19811028/voltdex.git
 ```
 接著複製（或建立 Symlink 捷徑）至你的目標技能目錄：
 ```bash
 # 1. 全域安裝給 Claude Code：
-cp -r poke-rotom ~/.claude/skills/poke-rotom
+cp -r voltdex ~/.claude/skills/voltdex
 
 # 2. 全域安裝給 Cursor：
-cp -r poke-rotom ~/.cursor/skills/poke-rotom
+cp -r voltdex ~/.cursor/skills/voltdex
 
 # 3. 或整合至你的特定專案 / AI 工作區的 skills 目錄：
-cp -r poke-rotom ./skills/poke-rotom
+cp -r voltdex ./skills/voltdex
 ```
 AI Agent 將根據目錄中的 [`SKILL.md`](SKILL.md) 自主調用工具。
 
@@ -115,21 +115,21 @@ AI Agent 將根據目錄中的 [`SKILL.md`](SKILL.md) 自主調用工具。
 ```json
 {
   "mcpServers": {
-    "poke-rotom": {
+    "voltdex": {
       "command": "node",
-      "args": ["/path/to/poke-rotom/index.mjs", "--mcp"],
-      "env": { "POKE_ROTOM_OUTPUT_DIR": "/path/to/your/sprites" }
+      "args": ["/path/to/voltdex/index.mjs", "--mcp"],
+      "env": { "VOLTDEX_OUTPUT_DIR": "/path/to/your/sprites" }
     }
   }
 }
 ```
-> 💡 *Windows 使用者請替換為實際路徑，如 `"C:/tools/poke-rotom/index.mjs"`。*
+> 💡 *Windows 使用者請替換為實際路徑，如 `"C:/tools/voltdex/index.mjs"`。*
 
-> 🔒 *`download_sprite` 只會寫入 `POKE_ROTOM_OUTPUT_DIR`（未設定時為 server 的工作目錄）之內，不會經由 symlink 寫到外面，也不會覆蓋既有檔案（除非呼叫時帶 `overwrite: true`）。若該目錄是檔案系統根目錄（部分 MCP client 會以此為工作目錄），會直接拒絕寫入。*
+> 🔒 *`download_sprite` 只會寫入 `VOLTDEX_OUTPUT_DIR`（未設定時為 server 的工作目錄）之內，不會經由 symlink 寫到外面，也不會覆蓋既有檔案（除非呼叫時帶 `overwrite: true`）。若該目錄是檔案系統根目錄（部分 MCP client 會以此為工作目錄），會直接拒絕寫入。*
 
 ---
 
-### `$ rotom --sprites (立繪與外觀支援)`
+### `$ voltdex --sprites (立繪與外觀支援)`
 
 | 參數值 | 樣式說明 | 預覽示例 |
 | :--- | :--- | :--- |
@@ -147,11 +147,11 @@ node index.mjs 噴火龍 --sprite official --shiny --out charizard_shiny.png
 
 ---
 
-### `$ rotom --license & 免責聲明`
+### `$ voltdex --license & 免責聲明`
 
 - **程式碼授權**：原始碼以 [MIT License](LICENSE) 授權 © 2026 [cain19811028](https://github.com/cain19811028)，授權範圍僅限程式碼。
 - **商標聲明**：寶可夢（Pokémon）及寶可夢角色名稱為 **Nintendo、Creatures Inc.、GAME FREAK Inc. 及 The Pokémon Company** 的商標。
 - **非官方聲明**：本專案為獨立、非營利的粉絲專案，與上述公司**無任何隸屬、贊助或背書關係**。
 - **資料與圖像**：`data/pokedex.json` 為衍生自 [PokéAPI](https://pokeapi.co/)（BSD 3-Clause）的事實性參考資料。本 repo **不含任何寶可夢圖像**；立繪是在使用者要求時才從 [PokeAPI/sprites](https://github.com/PokeAPI/sprites) 下載，並非由本專案授權給你，權利仍屬原權利人，使用方式由你自行負責。
 - **完整說明**：請見 [NOTICE.md](NOTICE.md) 與 [THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md)。
-- **權利人聯絡**：權利人若對內容有疑慮，請[開 Issue](https://github.com/cain19811028/poke-rotom/issues) 告知，將盡速處理，必要時直接移除。
+- **權利人聯絡**：權利人若對內容有疑慮，請[開 Issue](https://github.com/cain19811028/voltdex/issues) 告知，將盡速處理，必要時直接移除。

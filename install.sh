@@ -1,10 +1,10 @@
 #!/usr/bin/env bash
 # SPDX-License-Identifier: MIT
 # Copyright (c) 2026 cain19811028
-# poke-rotom One-Click Installer for macOS / Linux
+# voltdex One-Click Installer for macOS / Linux
 set -euo pipefail
 
-SKILL_NAME="poke-rotom"
+SKILL_NAME="voltdex"
 SRC="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd -P)"
 
 echo "⚡ Installing $SKILL_NAME..."
@@ -56,7 +56,7 @@ echo "🔌 MCP Server Configuration snippet:"
 cat << EOF
 {
   "mcpServers": {
-    "poke-rotom": {
+    "voltdex": {
       "command": "node",
       "args": ["$SRC/index.mjs", "--mcp"]
     }

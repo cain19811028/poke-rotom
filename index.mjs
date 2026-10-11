@@ -27,7 +27,7 @@ function parseCliArgs(argv) {
 
 function printHelp() {
   console.log(`
-⚡ poke-rotom - Lightweight Pokémon MCP Server & Agent Skill
+⚡ voltdex - Lightweight Pokémon MCP Server & Agent Skill
 
 Usage:
   node index.mjs <name_or_id> [options]

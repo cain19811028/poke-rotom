@@ -1,11 +1,11 @@
 # SPDX-License-Identifier: MIT
 # Copyright (c) 2026 cain19811028
 
-# poke-rotom One-Click Installer for Windows
+# voltdex One-Click Installer for Windows
 # Copies skill into Claude Code and Cursor user directories and displays MCP configuration.
 
 $ErrorActionPreference = "Stop"
-$SkillName = "poke-rotom"
+$SkillName = "voltdex"
 $RepoRoot = $PSScriptRoot
 
 Write-Host "⚡ Installing $SkillName..." -ForegroundColor Cyan
@@ -56,7 +56,7 @@ $McpPath = "$RepoRoot\index.mjs".Replace('\', '/')
 $McpConfig = @"
 {
   "mcpServers": {
-    "poke-rotom": {
+    "voltdex": {
       "command": "node",
       "args": ["$McpPath", "--mcp"]
     }

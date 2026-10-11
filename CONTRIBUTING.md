@@ -1,10 +1,10 @@
 # Contributing
 
-Thanks for helping improve poke-rotom.
+Thanks for helping improve voltdex.
 
 ## Licensing of contributions
 
-poke-rotom is licensed under the [MIT License](LICENSE). By submitting a pull request,
+voltdex is licensed under the [MIT License](LICENSE). By submitting a pull request,
 you agree that your contribution is licensed under the same MIT License
 ("inbound = outbound").
 

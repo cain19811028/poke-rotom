@@ -1,7 +1,7 @@
 {
-  "name": "poke-rotom",
+  "name": "voltdex",
   "version": "1.0.0",
-  "description": "Rotom Pokédex for AI Agents: Lightweight Pokémon MCP Server & Skill with multi-lingual search, battle stats, and HD sprites.",
+  "description": "Unofficial Pokémon data field guide for AI agents: lightweight MCP server & agent skill with multilingual search, battle stats, and sprite downloads.",
   "type": "module",
   "main": "index.mjs",
   "files": [
@@ -14,7 +14,7 @@
     "README.zh-TW.md"
   ],
   "bin": {
-    "poke-rotom": "./index.mjs"
+    "voltdex": "./index.mjs"
   },
   "scripts": {
     "start": "node index.mjs",
@@ -29,7 +29,6 @@
     "mcp",
     "model-context-protocol",
     "claude-skill",
-    "rotom",
     "token-saving"
   ],
   "author": {
@@ -39,11 +38,11 @@
   "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/cain19811028/poke-rotom.git"
+    "url": "git+https://github.com/cain19811028/voltdex.git"
   },
-  "homepage": "https://github.com/cain19811028/poke-rotom#readme",
+  "homepage": "https://github.com/cain19811028/voltdex#readme",
   "bugs": {
-    "url": "https://github.com/cain19811028/poke-rotom/issues"
+    "url": "https://github.com/cain19811028/voltdex/issues"
   },
   "engines": {
     "node": ">=18.3.0"

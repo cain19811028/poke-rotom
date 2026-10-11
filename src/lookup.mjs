@@ -146,7 +146,7 @@ function resolveOutputPath(outPath, root, overwrite) {
   if (path.parse(realRoot).root === realRoot) {
     throw new Error(
       "Security error: Refusing to use the filesystem root as the output directory. " +
-        "Run from a project directory or set POKE_ROTOM_OUTPUT_DIR."
+        "Run from a project directory or set VOLTDEX_OUTPUT_DIR."
     );
   }
 
@@ -208,7 +208,7 @@ export async function downloadSprite(url, outPath, options = {}) {
   const fullPath = resolveOutputPath(outPath, options.root ?? process.cwd(), overwrite);
 
   let res = await fetch(url, {
-    headers: { "User-Agent": "poke-rotom" },
+    headers: { "User-Agent": "voltdex" },
     signal: AbortSignal.timeout(30000),
   });
 
@@ -221,7 +221,7 @@ export async function downloadSprite(url, outPath, options = {}) {
       const fallbackUrl = `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/${isShinyUrl ? "shiny/" : ""}${pokeId}.png`;
       console.warn(`⚠️ Sprite not available at requested style (${url}), falling back to official artwork...`);
       res = await fetch(fallbackUrl, {
-        headers: { "User-Agent": "poke-rotom" },
+        headers: { "User-Agent": "voltdex" },
         signal: AbortSignal.timeout(30000),
       });
     }

@@ -13,7 +13,7 @@ const SPRITE_URL = "https://raw.githubusercontent.com/PokeAPI/sprites/master/spr
 // An output root plus a sibling directory outside it. The process also moves into the root,
 // so the default root (cwd) and an explicit one point at the same place.
 function sandbox(t) {
-  const dir = fs.realpathSync(fs.mkdtempSync(path.join(os.tmpdir(), "poke-rotom-dl-")));
+  const dir = fs.realpathSync(fs.mkdtempSync(path.join(os.tmpdir(), "voltdex-dl-")));
   const root = path.join(dir, "root");
   const outside = path.join(dir, "outside");
   fs.mkdirSync(root);
@@ -110,13 +110,13 @@ test("CLI --out overwrite protection", async (t) => {
 });
 
 test("MCP download_sprite output directory", async (t) => {
-  await t.test("resolves relative paths against POKE_ROTOM_OUTPUT_DIR", (t) => {
+  await t.test("resolves relative paths against VOLTDEX_OUTPUT_DIR", (t) => {
     const { root, outside } = sandbox(t);
 
     const result = callMcpTool(
       "download_sprite",
       { query: "pikachu", out: "pikachu.png" },
-      { cwd: outside, env: { ...process.env, POKE_ROTOM_OUTPUT_DIR: root } }
+      { cwd: outside, env: { ...process.env, VOLTDEX_OUTPUT_DIR: root } }
     );
 
     assert.ok(!result.isError, result.content?.[0]?.text);
@@ -130,7 +130,7 @@ test("MCP download_sprite output directory", async (t) => {
     const result = callMcpTool(
       "download_sprite",
       { query: "pikachu", out: path.join(outside, "pikachu.png") },
-      { cwd: path.parse(root).root, env: envWithout("POKE_ROTOM_OUTPUT_DIR") }
+      { cwd: path.parse(root).root, env: envWithout("VOLTDEX_OUTPUT_DIR") }
     );
 
     assert.equal(result.isError, true);

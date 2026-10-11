@@ -11,10 +11,10 @@ const SKILL_FILES = ["install.sh", "SKILL.md", "index.mjs"];
 
 // Every case runs against a throwaway clone and HOME, so the real repo and home are never touched.
 function sandbox(t) {
-  const dir = fs.mkdtempSync(path.join(os.tmpdir(), "poke-rotom-install-"));
+  const dir = fs.mkdtempSync(path.join(os.tmpdir(), "voltdex-install-"));
   t.after(() => fs.rmSync(dir, { recursive: true, force: true }));
   const home = path.join(dir, "home");
-  const skillDir = path.join(home, ".claude", "skills", "poke-rotom");
+  const skillDir = path.join(home, ".claude", "skills", "voltdex");
   fs.mkdirSync(path.dirname(skillDir), { recursive: true });
   return { dir, home, skillDir };
 }
@@ -82,7 +82,7 @@ test("install.sh", { skip: process.platform === "win32" && "needs bash" }, async
     }
   });
 
-  await t.test("refuses to clear a directory that is not a poke-rotom install", (t) => {
+  await t.test("refuses to clear a directory that is not a voltdex install", (t) => {
     const { dir, home, skillDir } = sandbox(t);
     const clone = path.join(dir, "clone");
     makeClone(clone);

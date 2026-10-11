@@ -1,6 +1,6 @@
 # Third-Party Notices
 
-poke-rotom bundles one piece of third-party material and downloads another at runtime.
+voltdex bundles one piece of third-party material and downloads another at runtime.
 
 ## PokéAPI — `data/pokedex.json` (bundled)
 
@@ -26,7 +26,7 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 
 ## PokeAPI/sprites — images downloaded at runtime (not bundled)
 
-No images are included in this repository. When asked to, poke-rotom downloads sprites
+No images are included in this repository. When asked to, voltdex downloads sprites
 from [PokeAPI/sprites](https://github.com/PokeAPI/sprites). According to that project:
 
 - Pokémon artwork and in-game sprites are the property of Nintendo, Creatures Inc.,
@@ -40,4 +40,4 @@ from [PokeAPI/sprites](https://github.com/PokeAPI/sprites). According to that pr
   [KingOfThe-X-Roads](https://www.deviantart.com/kingofthe-x-roads).
 
 See the [PokeAPI/sprites README](https://github.com/PokeAPI/sprites#readme) for the full
-list of credits. These images are not licensed to you by poke-rotom.
+list of credits. These images are not licensed to you by voltdex.

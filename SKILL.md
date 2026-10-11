@@ -1,18 +1,18 @@
 ---
-name: poke-rotom
+name: voltdex
 description: |
-  Lightweight Pokémon Pokédex and battle analysis tool for AI Agents.
+  Lightweight, unofficial Pokémon data lookup and battle analysis tool for AI Agents.
   Look up Pokémon by National Dex ID, English name, Traditional/Simplified Chinese, or Japanese name.
   Computes base stats (BST), defensive battle weaknesses, and downloads official HD sprites.
   Zero API Key required. Extremely token-efficient.
 author: cain19811028
-repository: https://github.com/cain19811028/poke-rotom
+repository: https://github.com/cain19811028/voltdex
 license: MIT
 ---
 
-# poke-rotom (Rotom Pokédex)
+# voltdex
 
-Rotom Pokédex provides instant, offline multilingual lookups, battle stat summaries, defensive weakness calculations, and official artwork downloads for all 1025 Pokémon (Gen 1 ~ 9).
+voltdex provides instant, offline multilingual lookups, battle stat summaries, defensive weakness calculations, and official artwork downloads for all 1025 Pokémon (Gen 1 ~ 9).
 
 ## When to use
 

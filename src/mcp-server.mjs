@@ -79,7 +79,7 @@ const TOOLS = [
         out: {
           type: "string",
           description:
-            "Output file path (e.g. 'charizard.png'). Relative paths resolve against POKE_ROTOM_OUTPUT_DIR, or the server's working directory when unset; the file must stay inside that directory.",
+            "Output file path (e.g. 'charizard.png'). Relative paths resolve against VOLTDEX_OUTPUT_DIR, or the server's working directory when unset; the file must stay inside that directory.",
         },
         sprite: {
           type: "string",
@@ -142,7 +142,7 @@ export function startMcpServer() {
           tools: {},
         },
         serverInfo: {
-          name: "poke-rotom",
+          name: "voltdex",
           version: "1.0.0",
         },
       });
@@ -230,7 +230,7 @@ export function startMcpServer() {
           }
           const spriteUrl = getSpriteUrl(pokemon.id, args.sprite || "official", args.shiny || false);
           const savedPath = await downloadSprite(spriteUrl, args.out, {
-            root: process.env.POKE_ROTOM_OUTPUT_DIR || process.cwd(),
+            root: process.env.VOLTDEX_OUTPUT_DIR || process.cwd(),
             overwrite: args.overwrite === true,
           });
           sendResponse(id, {
