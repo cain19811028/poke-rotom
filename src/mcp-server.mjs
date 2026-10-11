@@ -53,7 +53,8 @@ const TOOLS = [
         },
         out: {
           type: "string",
-          description: "Local output file path (e.g. './charizard.png')",
+          description:
+            "Output file path (e.g. 'charizard.png'). Relative paths resolve against POKE_ROTOM_OUTPUT_DIR, or the server's working directory when unset; the file must stay inside that directory.",
         },
         sprite: {
           type: "string",
@@ -63,6 +64,10 @@ const TOOLS = [
         shiny: {
           type: "boolean",
           description: "Whether to download shiny version",
+        },
+        overwrite: {
+          type: "boolean",
+          description: "Replace the file if it already exists. Defaults to false.",
         },
       },
       required: ["query", "out"],
@@ -206,7 +211,10 @@ export function startMcpServer() {
             return;
           }
           const spriteUrl = getSpriteUrl(pokemon.id, args.sprite || "official", args.shiny || false);
-          const savedPath = await downloadSprite(spriteUrl, args.out);
+          const savedPath = await downloadSprite(spriteUrl, args.out, {
+            root: process.env.POKE_ROTOM_OUTPUT_DIR || process.cwd(),
+            overwrite: args.overwrite === true,
+          });
           sendResponse(id, {
             content: [
               {

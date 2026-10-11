@@ -13,6 +13,8 @@ function parseArgs(argv) {
       flags.mcp = true;
     } else if (arg === "--shiny") {
       flags.shiny = true;
+    } else if (arg === "--force") {
+      flags.force = true;
     } else if (arg === "--brief") {
       flags.brief = true;
     } else if (arg === "--json") {
@@ -65,7 +67,8 @@ Options:
   --lang <en|zh-tw>   Language mode for output (default: auto-detected from query)
   --sprite <style>    Sprite set: 'official' (default), 'showdown' (GIF), 'gen3' (pixel), 'default'
   --shiny             Fetch shiny / alternate colorway
-  --out <path>        Download sprite image to specified file path
+  --out <path>        Download sprite image to specified file path (inside the current directory)
+  --force             Overwrite the --out file if it already exists
   --mcp               Run as Model Context Protocol (MCP) stdio server
   --help, -h          Show this help message
 
@@ -127,7 +130,7 @@ async function main() {
   let downloadedPath = null;
   if (flags.out) {
     try {
-      downloadedPath = await downloadSprite(spriteUrl, flags.out);
+      downloadedPath = await downloadSprite(spriteUrl, flags.out, { overwrite: Boolean(flags.force) });
     } catch (err) {
       console.error(`⚠️ Failed to download sprite: ${err.message}`);
     }

@@ -54,7 +54,8 @@ node index.mjs 25 --sprite gen3 --out pikachu_emerald.png
   - `gen3`: GBA Emerald retro pixel sprite.
   - `default`: Classic front pixel sprite.
 - `--shiny`: Fetches the shiny (alternate colorway) version.
-- `--out <filepath>`: Downloads the image directly to the target local path.
+- `--out <filepath>`: Downloads the image to a path inside the current directory. Existing files are kept.
+- `--force`: Lets `--out` overwrite an existing file.
 
 ## MCP Server Integration
 

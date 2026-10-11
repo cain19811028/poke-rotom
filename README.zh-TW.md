@@ -117,12 +117,15 @@ AI Agent 將根據目錄中的 [`SKILL.md`](SKILL.md) 自主調用工具。
   "mcpServers": {
     "poke-rotom": {
       "command": "node",
-      "args": ["/path/to/poke-rotom/index.mjs", "--mcp"]
+      "args": ["/path/to/poke-rotom/index.mjs", "--mcp"],
+      "env": { "POKE_ROTOM_OUTPUT_DIR": "/path/to/your/sprites" }
     }
   }
 }
 ```
 > 💡 *Windows 使用者請替換為實際路徑，如 `"C:/tools/poke-rotom/index.mjs"`。*
+
+> 🔒 *`download_sprite` 只會寫入 `POKE_ROTOM_OUTPUT_DIR`（未設定時為 server 的工作目錄）之內，不會經由 symlink 寫到外面，也不會覆蓋既有檔案（除非呼叫時帶 `overwrite: true`）。若該目錄是檔案系統根目錄（部分 MCP client 會以此為工作目錄），會直接拒絕寫入。*
 
 ---
 
@@ -135,6 +138,7 @@ AI Agent 將根據目錄中的 [`SKILL.md`](SKILL.md) 自主調用工具。
 | `--sprite gen3` | **GBA 第三世代《綠寶石》復古像素點陣圖** | 經典 Retro 懷舊風格 |
 | `--sprite default` | **當代標準 96x96 像素正面圖** | 輕量小圖示使用 |
 | `--shiny` | **附加旗標：取得異色（色違）版本** | 金色鯉魚王、黑噴火龍 |
+| `--force` | **附加旗標：`--out` 檔案已存在時覆蓋** | 重新下載立繪 |
 
 ```bash
 # 下載黑色異色噴火龍官方高清立繪

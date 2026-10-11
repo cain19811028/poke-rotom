@@ -116,12 +116,15 @@ Add `poke-rotom` to your Claude Desktop, Claude Code, or project `.mcp.json` (e.
   "mcpServers": {
     "poke-rotom": {
       "command": "node",
-      "args": ["/path/to/poke-rotom/index.mjs", "--mcp"]
+      "args": ["/path/to/poke-rotom/index.mjs", "--mcp"],
+      "env": { "POKE_ROTOM_OUTPUT_DIR": "/path/to/your/sprites" }
     }
   }
 }
 ```
 > 💡 *Windows users: specify your path, e.g. `"C:/tools/poke-rotom/index.mjs"`.*
+
+> 🔒 *`download_sprite` only writes inside `POKE_ROTOM_OUTPUT_DIR` (or the server's working directory when unset), never follows a symlink out of it, and keeps existing files unless called with `overwrite: true`. It refuses to write when that directory is the filesystem root, which some MCP clients use as the working directory.*
 
 ---
 
@@ -134,6 +137,7 @@ Add `poke-rotom` to your Claude Desktop, Claude Code, or project `.mcp.json` (e.
 | `--sprite gen3` | **GBA Gen 3 Emerald Retro Pixel Sprite** | Retro pixel art applications |
 | `--sprite default` | **Standard 96x96 Front Pixel Sprite** | Lightweight icon indicators |
 | `--shiny` | **Flag: Download Shiny / Alternate Colorway** | Black Charizard, Gold Magikarp |
+| `--force` | **Flag: Overwrite the `--out` file if it already exists** | Re-downloading a sprite |
 
 ```bash
 # Download official HD artwork for Shiny Charizard

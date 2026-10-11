@@ -115,14 +115,74 @@ export function getSpriteUrl(id, spriteSet = "official", shiny = false) {
 const ALLOWED_IMAGE_EXTENSIONS = new Set([".png", ".gif", ".jpg", ".jpeg", ".webp", ".svg"]);
 const ALLOWED_ORIGIN_PREFIX = "https://raw.githubusercontent.com/PokeAPI/";
 
+function isInside(dir, target) {
+  const rel = path.relative(dir, target);
+  return !path.isAbsolute(rel) && rel !== ".." && !rel.startsWith(`..${path.sep}`);
+}
+
+function lstatOrNull(p) {
+  try {
+    return fs.lstatSync(p);
+  } catch (err) {
+    if (err.code === "ENOENT" || err.code === "ENOTDIR") return null;
+    throw err;
+  }
+}
+
+/**
+ * Resolve where a sprite may be written. Rejects any path that would land outside `root`
+ * once symlinks are followed, and any existing file unless `overwrite` is set.
+ */
+function resolveOutputPath(outPath, root, overwrite) {
+  const rootDir = path.resolve(root);
+  if (!fs.existsSync(rootDir)) {
+    throw new Error(`Output directory does not exist: ${rootDir}`);
+  }
+  const realRoot = fs.realpathSync(rootDir);
+  // MCP clients may launch the server with "/" as its working directory; a boundary there allows everything.
+  if (path.parse(realRoot).root === realRoot) {
+    throw new Error(
+      "Security error: Refusing to use the filesystem root as the output directory. " +
+        "Run from a project directory or set POKE_ROTOM_OUTPUT_DIR."
+    );
+  }
+
+  const fullPath = path.resolve(rootDir, outPath);
+  if (!isInside(rootDir, fullPath)) {
+    throw new Error(`Security error: Output path must be within the output directory (${rootDir})`);
+  }
+
+  // path.resolve does not follow symlinks, so check where the deepest existing ancestor really
+  // lives before any directory gets created through it.
+  let ancestor = path.dirname(fullPath);
+  while (!lstatOrNull(ancestor)) ancestor = path.dirname(ancestor);
+  if (!isInside(realRoot, fs.realpathSync(ancestor))) {
+    throw new Error(`Security error: Output path leaves the output directory through a symlink (${rootDir})`);
+  }
+
+  const target = lstatOrNull(fullPath);
+  if (target?.isSymbolicLink()) {
+    throw new Error(`Security error: Refusing to write through a symlink: ${fullPath}`);
+  }
+  if (target?.isDirectory()) {
+    throw new Error(`Target path is an existing directory: ${fullPath}`);
+  }
+  if (target && !overwrite) {
+    throw new Error(`File already exists: ${fullPath}. Use --force (CLI) or overwrite: true (MCP) to replace it.`);
+  }
+  return fullPath;
+}
+
 /**
  * Download sprite to target file path.
- * Enforces image extension restriction, URL origin validation, directory boundary check (CWD),
- * and automatic fallback to official artwork when target style returns 404.
+ * Enforces image extension restriction, URL origin validation, an output directory boundary
+ * that symlinks cannot escape, no silent overwrites, and automatic fallback to official
+ * artwork when target style returns 404.
  * @param {string} url
- * @param {string} outPath
+ * @param {string} outPath - relative paths resolve against `options.root`
  * @param {object} [options]
- * @param {boolean} [options.allowOutsideCwd=false]
+ * @param {string} [options.root=process.cwd()] - directory the file must stay inside
+ * @param {boolean} [options.overwrite=false] - replace an existing file
  * @returns {Promise<string>} absolute path of written file
  */
 export async function downloadSprite(url, outPath, options = {}) {
@@ -141,21 +201,8 @@ export async function downloadSprite(url, outPath, options = {}) {
     );
   }
 
-  const fullPath = path.resolve(outPath);
-  const cwd = path.resolve(process.cwd());
-
-  // Prevent path traversal outside working directory
-  if (!options.allowOutsideCwd) {
-    const rel = path.relative(cwd, fullPath);
-    if (rel.startsWith("..") || path.isAbsolute(rel)) {
-      throw new Error(`Security error: Output path must be within the current working directory (${cwd})`);
-    }
-  }
-
-  // Prevent overwriting a directory
-  if (fs.existsSync(fullPath) && fs.statSync(fullPath).isDirectory()) {
-    throw new Error(`Target path is an existing directory: ${fullPath}`);
-  }
+  const overwrite = options.overwrite === true;
+  const fullPath = resolveOutputPath(outPath, options.root ?? process.cwd(), overwrite);
 
   let res = await fetch(url, {
     headers: { "User-Agent": "poke-rotom" },
@@ -188,6 +235,7 @@ export async function downloadSprite(url, outPath, options = {}) {
 
   fs.mkdirSync(path.dirname(fullPath), { recursive: true });
   const buffer = Buffer.from(await res.arrayBuffer());
-  fs.writeFileSync(fullPath, buffer);
+  // "wx" keeps the no-overwrite promise even if the file appeared while downloading.
+  fs.writeFileSync(fullPath, buffer, { flag: overwrite ? "w" : "wx" });
   return fullPath;
 }
