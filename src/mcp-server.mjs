@@ -1,6 +1,26 @@
 import readline from "node:readline";
 import { findPokemon, getSpriteUrl, downloadSprite } from "./lookup.mjs";
-import { calculateWeaknesses, calculateStabCoverage } from "./type-chart.mjs";
+import { calculateWeaknesses, calculateStabCoverage, TYPES } from "./type-chart.mjs";
+
+// Unknown or extra types used to be skipped silently, which returned a confident wrong matchup.
+function parseTypes(raw) {
+  const list = Array.isArray(raw) ? raw : typeof raw === "string" ? raw.split(/[,/\s]+/) : [];
+  if (list.some((t) => typeof t !== "string")) {
+    return { error: "Invalid 'types' parameter. Every type must be a string, e.g. ['fire', 'flying']" };
+  }
+  const types = [...new Set(list.map((t) => t.toLowerCase().trim()).filter(Boolean))];
+  if (types.length === 0) {
+    return { error: "Missing or invalid 'types' parameter. Expected array of types, e.g. ['fire', 'flying']" };
+  }
+  const unknown = types.filter((t) => !TYPES.includes(t));
+  if (unknown.length > 0) {
+    return { error: `Unknown type(s): ${unknown.join(", ")}. Valid types: ${TYPES.join(", ")}` };
+  }
+  if (types.length > 2) {
+    return { error: `A Pokémon has at most two types, got ${types.length}: ${types.join(", ")}` };
+  }
+  return { types };
+}
 
 const TOOLS = [
   {
@@ -34,8 +54,10 @@ const TOOLS = [
       properties: {
         types: {
           type: "array",
-          items: { type: "string" },
-          description: "List of elemental types (e.g. ['fire', 'flying'])",
+          items: { type: "string", enum: TYPES },
+          minItems: 1,
+          maxItems: 2,
+          description: "One or two English type names (e.g. ['fire', 'flying'])",
         },
       },
       required: ["types"],
@@ -161,25 +183,18 @@ export function startMcpServer() {
         }
 
         if (toolName === "calculate_weakness") {
-          const rawTypes = Array.isArray(args.types)
-            ? args.types
-            : typeof args.types === "string"
-              ? args.types.split(/[,/\s]+/)
-              : [];
-          if (rawTypes.length === 0) {
-            sendResponse(id, {
-              isError: true,
-              content: [{ type: "text", text: "Missing or invalid 'types' parameter. Expected array of types, e.g. ['fire', 'flying']" }],
-            });
+          const { types, error } = parseTypes(args.types);
+          if (error) {
+            sendResponse(id, { isError: true, content: [{ type: "text", text: error }] });
             return;
           }
-          const weaknesses = calculateWeaknesses(rawTypes);
-          const stabCoverage = calculateStabCoverage(rawTypes);
+          const weaknesses = calculateWeaknesses(types);
+          const stabCoverage = calculateStabCoverage(types);
           sendResponse(id, {
             content: [
               {
                 type: "text",
-                text: JSON.stringify({ types: rawTypes, weaknesses, stab_coverage: stabCoverage }),
+                text: JSON.stringify({ types, weaknesses, stab_coverage: stabCoverage }),
               },
             ],
           });

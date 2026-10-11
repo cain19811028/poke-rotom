@@ -4,12 +4,10 @@ import fs from "node:fs";
 import os from "node:os";
 import path from "node:path";
 import { spawnSync } from "node:child_process";
-import { fileURLToPath, pathToFileURL } from "node:url";
 import { downloadSprite } from "../src/lookup.mjs";
 import { fakeSpriteFetch, FAKE_SPRITE_BYTES } from "./fixtures/fake-sprite.mjs";
+import { ROOT, MOCK_FETCH, callMcpTool } from "./fixtures/mcp.mjs";
 
-const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
-const MOCK_FETCH = pathToFileURL(path.join(ROOT, "test/fixtures/mock-fetch.mjs")).href;
 const SPRITE_URL = "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/25.png";
 
 // An output root plus a sibling directory outside it. The process also moves into the root,
@@ -28,17 +26,6 @@ function sandbox(t) {
     fs.rmSync(dir, { recursive: true, force: true });
   });
   return { root, outside };
-}
-
-function callMcpDownload({ cwd, env, args }) {
-  const request = { jsonrpc: "2.0", id: 1, method: "tools/call", params: { name: "download_sprite", arguments: args } };
-  const res = spawnSync(process.execPath, ["--import", MOCK_FETCH, path.join(ROOT, "index.mjs"), "--mcp"], {
-    cwd,
-    env,
-    input: JSON.stringify(request) + "\n",
-    encoding: "utf8",
-  });
-  return JSON.parse(res.stdout.trim().split("\n").pop()).result;
 }
 
 function envWithout(name) {
@@ -126,11 +113,11 @@ test("MCP download_sprite output directory", async (t) => {
   await t.test("resolves relative paths against POKE_ROTOM_OUTPUT_DIR", (t) => {
     const { root, outside } = sandbox(t);
 
-    const result = callMcpDownload({
-      cwd: outside,
-      env: { ...process.env, POKE_ROTOM_OUTPUT_DIR: root },
-      args: { query: "pikachu", out: "pikachu.png" },
-    });
+    const result = callMcpTool(
+      "download_sprite",
+      { query: "pikachu", out: "pikachu.png" },
+      { cwd: outside, env: { ...process.env, POKE_ROTOM_OUTPUT_DIR: root } }
+    );
 
     assert.ok(!result.isError, result.content?.[0]?.text);
     assert.equal(JSON.parse(result.content[0].text).saved_to, path.join(root, "pikachu.png"));
@@ -140,11 +127,11 @@ test("MCP download_sprite output directory", async (t) => {
   await t.test("refuses to write when launched from the filesystem root", (t) => {
     const { root, outside } = sandbox(t);
 
-    const result = callMcpDownload({
-      cwd: path.parse(root).root,
-      env: envWithout("POKE_ROTOM_OUTPUT_DIR"),
-      args: { query: "pikachu", out: path.join(outside, "pikachu.png") },
-    });
+    const result = callMcpTool(
+      "download_sprite",
+      { query: "pikachu", out: path.join(outside, "pikachu.png") },
+      { cwd: path.parse(root).root, env: envWithout("POKE_ROTOM_OUTPUT_DIR") }
+    );
 
     assert.equal(result.isError, true);
     assert.deepEqual(fs.readdirSync(outside), []);
