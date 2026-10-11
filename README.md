@@ -6,7 +6,7 @@
   <a href="https://github.com/cain19811028/poke-rotom"><img src="https://img.shields.io/badge/Pok%C3%A9mon-Gen%201~9%20(1025%20Pok%C3%A9mon)-FF5A1F?style=flat-square&logo=pokemon&logoColor=white" alt="Pokémon Gen 1-9"></a>
   <a href="https://modelcontextprotocol.io/"><img src="https://img.shields.io/badge/MCP-Ready%20(Stdio)-00F0FF?style=flat-square&logo=anthropic&logoColor=black" alt="MCP Server"></a>
   <a href="https://claude.ai/"><img src="https://img.shields.io/badge/Claude%20Code-Skill%20Supported-D97757?style=flat-square&logo=claude&logoColor=white" alt="Claude Code Skill"></a>
-  <a href="https://nodejs.org/"><img src="https://img.shields.io/badge/Node.js-%3E%3D%2018.0.0-339933?style=flat-square&logo=node.js&logoColor=white" alt="Node.js"></a>
+  <a href="https://nodejs.org/"><img src="https://img.shields.io/badge/Node.js-%3E%3D%2018.3.0-339933?style=flat-square&logo=node.js&logoColor=white" alt="Node.js"></a>
   <a href="#-rotom---benchmark-token-diet"><img src="https://img.shields.io/badge/Token%20Saved-99.6%25-10B981?style=flat-square&logo=speedtest&logoColor=white" alt="Token Saved 99.6%"></a>
   <a href="LICENSE"><img src="https://img.shields.io/badge/license-MIT-blue?style=flat-square" alt="MIT License"></a>
 </p>
@@ -81,7 +81,7 @@ When an AI Agent requests full Pokémon combat and species info:
 #### 2. Ultra-Compact Mode (`--brief`, Maximum Token Efficiency)
 ```bash
 $ node index.mjs charizard --brief
-#006 Charizard (Charizard) | fire/flying | BST:534 (HP:78 Atk:84 Def:78 SpA:109 SpD:85 Spe:100) | Weak: 4x:rock 2x:water,electric | Immune: ground(0x)
+#006 Charizard | fire/flying | BST:534 (HP:78 Atk:84 Def:78 SpA:109 SpD:85 Spe:100) | Weak: 4x:rock 2x:water,electric | Immune: ground(0x)
 ```
 
 ---

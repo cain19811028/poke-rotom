@@ -1,56 +1,26 @@
 #!/usr/bin/env node
+import { parseArgs } from "node:util";
 import { findPokemon, getSpriteUrl, downloadSprite } from "./src/lookup.mjs";
 import { startMcpServer } from "./src/mcp-server.mjs";
 import { TYPE_NAMES_ZH } from "./src/type-chart.mjs";
 
-function parseArgs(argv) {
-  const flags = {};
-  const positionals = [];
+const CLI_OPTIONS = {
+  mcp: { type: "boolean" },
+  shiny: { type: "boolean" },
+  force: { type: "boolean" },
+  brief: { type: "boolean" },
+  json: { type: "boolean" },
+  help: { type: "boolean", short: "h" },
+  sprite: { type: "string" },
+  out: { type: "string" },
+  lang: { type: "string" },
+};
+const LANGS = ["en", "zh", "zh-tw", "zh_tw"];
 
-  for (let i = 0; i < argv.length; i++) {
-    const arg = argv[i];
-    if (arg === "--mcp") {
-      flags.mcp = true;
-    } else if (arg === "--shiny") {
-      flags.shiny = true;
-    } else if (arg === "--force") {
-      flags.force = true;
-    } else if (arg === "--brief") {
-      flags.brief = true;
-    } else if (arg === "--json") {
-      flags.json = true;
-    } else if (arg === "--help" || arg === "-h") {
-      flags.help = true;
-    } else if (arg.startsWith("--sprite=")) {
-      flags.sprite = arg.slice("--sprite=".length);
-    } else if (arg.startsWith("--out=")) {
-      flags.out = arg.slice("--out=".length);
-    } else if (arg.startsWith("--lang=")) {
-      flags.lang = arg.slice("--lang=".length);
-    } else if (arg === "--sprite" || arg === "--out" || arg === "--lang") {
-      const key = arg.slice(2);
-      const next = argv[i + 1];
-      if (next !== undefined && !next.startsWith("--")) {
-        flags[key] = next;
-        i++;
-      } else {
-        flags[key] = null;
-      }
-    } else if (arg.startsWith("--")) {
-      const key = arg.slice(2);
-      const next = argv[i + 1];
-      if (next !== undefined && !next.startsWith("--")) {
-        flags[key] = next;
-        i++;
-      } else {
-        flags[key] = true;
-      }
-    } else {
-      positionals.push(arg);
-    }
-  }
-
-  return { flags, positionals };
+// Strict parsing: an unknown or mistyped flag is an error, never silently eats the next argument.
+function parseCliArgs(argv) {
+  const { values, positionals } = parseArgs({ args: argv, options: CLI_OPTIONS, allowPositionals: true, strict: true });
+  return { flags: values, positionals };
 }
 
 function printHelp() {
@@ -81,7 +51,13 @@ Examples:
 }
 
 async function main() {
-  const { flags, positionals } = parseArgs(process.argv.slice(2));
+  let flags, positionals;
+  try {
+    ({ flags, positionals } = parseCliArgs(process.argv.slice(2)));
+  } catch (err) {
+    console.error(`❌ ${err.message}\n   Run with --help for usage.`);
+    process.exit(1);
+  }
 
   // 1. MCP Server Mode
   if (flags.mcp) {
@@ -113,6 +89,12 @@ async function main() {
     process.exit(1);
   }
 
+  const lang = flags.lang?.toLowerCase();
+  if (lang !== undefined && !LANGS.includes(lang)) {
+    console.error(`❌ Invalid --lang value: "${flags.lang}". Expected one of: ${LANGS.join(", ")}`);
+    process.exit(1);
+  }
+
   const query = positionals.join(" ").trim();
   const pokemon = findPokemon(query);
 
@@ -132,15 +114,13 @@ async function main() {
     try {
       downloadedPath = await downloadSprite(spriteUrl, flags.out, { overwrite: Boolean(flags.force) });
     } catch (err) {
-      console.error(`⚠️ Failed to download sprite: ${err.message}`);
+      // Still print the lookup, but let scripts and agents see the download failed.
+      console.error(`❌ Failed to download sprite: ${err.message}`);
+      process.exitCode = 1;
     }
   }
 
-  const isZh =
-    flags.lang === "zh" ||
-    flags.lang === "zh-tw" ||
-    flags.lang === "zh_tw" ||
-    (!flags.lang && /[\u4e00-\u9fa5]/.test(query));
+  const isZh = lang ? lang !== "en" : /[\u4e00-\u9fa5]/.test(query);
 
   // 3. Ultra-compact brief mode
   if (flags.brief) {
@@ -178,7 +158,7 @@ async function main() {
       : "";
 
     console.log(
-      `#${padId} ${pokemon.zh_tw || pokemon.en} (${pokemon.en}) | ${pokemon.types.join("/")} | BST:${pokemon.stats.bst} (HP:${pokemon.stats.hp} Atk:${pokemon.stats.atk} Def:${pokemon.stats.def} SpA:${pokemon.stats.spa} SpD:${pokemon.stats.spd} Spe:${pokemon.stats.spe})${weakStr}${immuneStr}${outStr}`
+      `#${padId} ${pokemon.en} | ${pokemon.types.join("/")} | BST:${pokemon.stats.bst} (HP:${pokemon.stats.hp} Atk:${pokemon.stats.atk} Def:${pokemon.stats.def} SpA:${pokemon.stats.spa} SpD:${pokemon.stats.spd} Spe:${pokemon.stats.spe})${weakStr}${immuneStr}${outStr}`
     );
     return;
   }
