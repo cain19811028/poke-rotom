@@ -163,6 +163,8 @@ export function getSpriteUrl(id, spriteSet = "official", shiny = false) {
 
 const ALLOWED_IMAGE_EXTENSIONS = new Set([".png", ".gif", ".jpg", ".jpeg", ".webp", ".svg"]);
 const ALLOWED_ORIGIN_PREFIX = "https://raw.githubusercontent.com/PokeAPI/";
+// The largest PokeAPI sprites are a few hundred KB; anything near this is not a sprite.
+const MAX_SPRITE_BYTES = 10 * 1024 * 1024;
 
 function isInside(dir, target) {
   const rel = path.relative(dir, target);
@@ -222,11 +224,40 @@ function resolveOutputPath(outPath, root, overwrite) {
   return fullPath;
 }
 
+// Only the first URL passes the origin check, so a redirect is refused instead of followed.
+async function fetchSprite(url) {
+  const res = await fetch(url, {
+    headers: { "User-Agent": "voltdex" },
+    redirect: "manual",
+    signal: AbortSignal.timeout(30000),
+  });
+  if (res.status >= 300 && res.status < 400) {
+    throw new Error(`Refusing to follow a redirect (HTTP ${res.status}) from ${url}`);
+  }
+  return res;
+}
+
+// Streams the body so an oversized response is cut off instead of buffered whole.
+async function readCappedBody(res, limit) {
+  const declared = Number(res.headers.get("content-length"));
+  if (declared > limit) {
+    throw new Error(`Sprite is too large: ${declared} bytes (limit ${limit})`);
+  }
+  const chunks = [];
+  let size = 0;
+  for await (const chunk of res.body ?? []) {
+    size += chunk.byteLength;
+    if (size > limit) throw new Error(`Sprite is too large: over ${limit} bytes`);
+    chunks.push(chunk);
+  }
+  return Buffer.concat(chunks);
+}
+
 /**
  * Download sprite to target file path.
- * Enforces image extension restriction, URL origin validation, an output directory boundary
- * that symlinks cannot escape, no silent overwrites, and automatic fallback to official
- * artwork when target style returns 404.
+ * Enforces image extension restriction, URL origin validation (no redirects), a size limit,
+ * an output directory boundary that symlinks cannot escape, no silent overwrites, and
+ * automatic fallback to official artwork when target style returns 404.
  * @param {string} url
  * @param {string} outPath - relative paths resolve against `options.root`
  * @param {object} [options]
@@ -253,10 +284,7 @@ export async function downloadSprite(url, outPath, options = {}) {
   const overwrite = options.overwrite === true;
   const fullPath = resolveOutputPath(outPath, options.root ?? process.cwd(), overwrite);
 
-  let res = await fetch(url, {
-    headers: { "User-Agent": "voltdex" },
-    signal: AbortSignal.timeout(30000),
-  });
+  let res = await fetchSprite(url);
 
   // If a showdown GIF or custom sprite returns 404, fallback to official HD artwork
   if (!res.ok && res.status === 404 && !url.includes("official-artwork")) {
@@ -266,10 +294,7 @@ export async function downloadSprite(url, outPath, options = {}) {
       const isShinyUrl = url.includes("/shiny/");
       const fallbackUrl = `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/${isShinyUrl ? "shiny/" : ""}${pokeId}.png`;
       console.warn(`⚠️ Sprite not available at requested style (${url}), falling back to official artwork...`);
-      res = await fetch(fallbackUrl, {
-        headers: { "User-Agent": "voltdex" },
-        signal: AbortSignal.timeout(30000),
-      });
+      res = await fetchSprite(fallbackUrl);
     }
   }
 
@@ -282,8 +307,8 @@ export async function downloadSprite(url, outPath, options = {}) {
     throw new Error(`Unexpected content-type received from source: ${contentType}`);
   }
 
+  const buffer = await readCappedBody(res, MAX_SPRITE_BYTES);
   fs.mkdirSync(path.dirname(fullPath), { recursive: true });
-  const buffer = Buffer.from(await res.arrayBuffer());
   // "wx" keeps the no-overwrite promise even if the file appeared while downloading.
   fs.writeFileSync(fullPath, buffer, { flag: overwrite ? "w" : "wx" });
   return fullPath;

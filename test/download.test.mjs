@@ -12,7 +12,7 @@ const SPRITE_URL = "https://raw.githubusercontent.com/PokeAPI/sprites/master/spr
 
 // An output root plus a sibling directory outside it. The process also moves into the root,
 // so the default root (cwd) and an explicit one point at the same place.
-function sandbox(t) {
+function sandbox(t, fetchImpl = fakeSpriteFetch) {
   const dir = fs.realpathSync(fs.mkdtempSync(path.join(os.tmpdir(), "voltdex-dl-")));
   const root = path.join(dir, "root");
   const outside = path.join(dir, "outside");
@@ -20,7 +20,7 @@ function sandbox(t) {
   fs.mkdirSync(outside);
   const prevCwd = process.cwd();
   process.chdir(root);
-  t.mock.method(globalThis, "fetch", fakeSpriteFetch);
+  t.mock.method(globalThis, "fetch", fetchImpl);
   t.after(() => {
     process.chdir(prevCwd);
     fs.rmSync(dir, { recursive: true, force: true });
@@ -85,6 +85,56 @@ test("Sprite download boundary (downloadSprite)", async (t) => {
       /filesystem root/
     );
     assert.deepEqual(fs.readdirSync(outside), []);
+  });
+});
+
+// Behaves like fetch: redirects are followed transparently unless the caller opts out, so a
+// caller that does not opt out ends up with whatever the redirect target served.
+async function redirectingFetch(url, options = {}) {
+  if (options.redirect === "manual") {
+    return new Response(null, { status: 302, headers: { location: "https://attacker.example/x.png" } });
+  }
+  if (options.redirect === "error") throw new TypeError("fetch failed: unexpected redirect");
+  return fakeSpriteFetch();
+}
+
+function oversizedBody(bytes, chunk = 1024 * 1024) {
+  let sent = 0;
+  return new ReadableStream({
+    pull(controller) {
+      if (sent >= bytes) return controller.close();
+      controller.enqueue(new Uint8Array(chunk));
+      sent += chunk;
+    },
+  });
+}
+
+test("Sprite download transport limits (downloadSprite)", async (t) => {
+  await t.test("refuses to follow a redirect away from the trusted origin", async (t) => {
+    const { root } = sandbox(t, redirectingFetch);
+
+    await assert.rejects(downloadSprite(SPRITE_URL, "pikachu.png", { root }), /redirect/i);
+    assert.deepEqual(fs.readdirSync(root), []);
+  });
+
+  await t.test("stops reading a body that grows past the size limit", async (t) => {
+    const { root } = sandbox(t, async () => new Response(oversizedBody(11 * 1024 * 1024), { status: 200 }));
+
+    await assert.rejects(downloadSprite(SPRITE_URL, "huge.png", { root }), /too large/);
+    assert.deepEqual(fs.readdirSync(root), []);
+  });
+
+  await t.test("rejects a declared size over the limit before reading the body", async (t) => {
+    let pulled = false;
+    // highWaterMark 0: the stream only pulls when someone actually reads it.
+    const body = new ReadableStream({ pull: (c) => { pulled = true; c.close(); } }, { highWaterMark: 0 });
+    const { root } = sandbox(t, async () =>
+      new Response(body, { status: 200, headers: { "content-type": "image/png", "content-length": String(50 * 1024 * 1024) } })
+    );
+
+    await assert.rejects(downloadSprite(SPRITE_URL, "huge.png", { root }), /too large/);
+    assert.equal(pulled, false);
+    assert.deepEqual(fs.readdirSync(root), []);
   });
 });
 
