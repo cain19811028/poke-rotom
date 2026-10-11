@@ -148,7 +148,8 @@ node index.mjs charizard --sprite official --shiny --out charizard_shiny.png
 
 ### `$ voltdex --license & disclaimer`
 
-- **Code License**: The source code is licensed under the [MIT License](LICENSE) © 2026 [cain19811028](https://github.com/cain19811028). The license covers the code only.
+- **License**: The source code and original artwork are licensed under the [MIT License](LICENSE) © 2026 [cain19811028](https://github.com/cain19811028). It does not cover the third-party data and images described below.
+- **Name & Mascot**: The voltdex name and the Spark mascot identify this project. The MIT License does not cover their use as a brand; forks are welcome under their own name.
 - **Trademarks**: Pokémon and Pokémon character names are trademarks of **Nintendo, Creatures Inc., GAME FREAK Inc., and The Pokémon Company**.
 - **Unofficial**: voltdex is an independent, non-commercial fan project. It is **not** affiliated with, sponsored by, or endorsed by any of them.
 - **Data & Images**: `data/pokedex.json` holds factual reference data derived from [PokéAPI](https://pokeapi.co/) (BSD 3-Clause). This repository contains **no Pokémon artwork**; sprites are downloaded on request from [PokeAPI/sprites](https://github.com/PokeAPI/sprites), are not licensed to you by this project, and remain the property of their owners. You are responsible for how you use them.

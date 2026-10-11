@@ -149,7 +149,8 @@ node index.mjs 噴火龍 --sprite official --shiny --out charizard_shiny.png
 
 ### `$ voltdex --license & 免責聲明`
 
-- **程式碼授權**：原始碼以 [MIT License](LICENSE) 授權 © 2026 [cain19811028](https://github.com/cain19811028)，授權範圍僅限程式碼。
+- **授權**：原始碼與原創美術以 [MIT License](LICENSE) 授權 © 2026 [cain19811028](https://github.com/cain19811028)，不涵蓋下方所述的第三方資料與圖像。
+- **名稱與吉祥物**：voltdex 名稱與吉祥物 Spark 用於識別本專案，MIT 授權不包含將它們作為品牌使用的權利；歡迎 fork，但請使用你自己的名稱。
 - **商標聲明**：寶可夢（Pokémon）及寶可夢角色名稱為 **Nintendo、Creatures Inc.、GAME FREAK Inc. 及 The Pokémon Company** 的商標。
 - **非官方聲明**：本專案為獨立、非營利的粉絲專案，與上述公司**無任何隸屬、贊助或背書關係**。
 - **資料與圖像**：`data/pokedex.json` 為衍生自 [PokéAPI](https://pokeapi.co/)（BSD 3-Clause）的事實性參考資料。本 repo **不含任何寶可夢圖像**；立繪是在使用者要求時才從 [PokeAPI/sprites](https://github.com/PokeAPI/sprites) 下載，並非由本專案授權給你，權利仍屬原權利人，使用方式由你自行負責。

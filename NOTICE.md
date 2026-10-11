@@ -2,10 +2,19 @@
 
 voltdex — Copyright (c) 2026 cain19811028
 
-The source code in this repository is licensed under the [MIT License](LICENSE).
-That license covers the code written for voltdex and nothing else listed below.
+The source code and original artwork in this repository are licensed under the
+[MIT License](LICENSE). That license covers only material created for voltdex, not the
+third-party material described below.
 
-## Trademarks
+## The voltdex name and the Spark mascot
+
+"voltdex" and the Spark mascot (the pixel character in `assets/hero.svg`, drawn by
+`scripts/build-hero.mjs`) identify this project. The MIT License covers their files as
+code and artwork; it grants no right to use the name or the mascot as a brand. Please do
+not use them to name or identify another project or product, or in a way that suggests
+it is made or endorsed by voltdex. Forks are welcome under their own name.
+
+## Pokémon trademarks
 
 Pokémon and Pokémon character names are trademarks of Nintendo, Creatures Inc.,
 GAME FREAK Inc., and The Pokémon Company. They appear here only to identify the
@@ -18,6 +27,8 @@ GAME FREAK Inc., or The Pokémon Company.
 ## What this repository contains
 
 - **Source code** written for voltdex, under the MIT License.
+- **Original artwork**: the banner and the Spark mascot in `assets/hero.svg`, under the
+  MIT License, subject to the name and mascot section above.
 - **`data/pokedex.json`**: factual reference data (National Pokédex numbers, names,
   types, base stats) derived from PokéAPI. See [THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md).
 - **No Pokémon artwork or sprites.** On request, the tool downloads images hosted by
