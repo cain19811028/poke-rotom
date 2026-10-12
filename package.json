@@ -1,6 +1,6 @@
 {
   "name": "voltdex",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "description": "Unofficial Pokémon data field guide for AI agents: lightweight MCP server & agent skill with multilingual search, battle stats, and sprite downloads.",
   "type": "module",
   "main": "index.mjs",
