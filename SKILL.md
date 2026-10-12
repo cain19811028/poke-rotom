@@ -23,24 +23,24 @@ Use this skill whenever:
 
 ## CLI Usage
 
-Run within the skill directory with Node.js (requires Node 22+):
+Requires Node.js 22+. Run the commands from the user's working directory and call the script by its path inside this skill's directory, written below as `<skill-dir>` (the folder that holds this SKILL.md). Do not `cd` into the skill directory: `--out` paths resolve against the current directory, so a download made from there would land inside the skill instead of the user's project.
 
 ```bash
 # 1. Compact 1-line query (Recommended to minimize token consumption):
-node index.mjs 噴火龍 --brief
+node <skill-dir>/index.mjs 噴火龍 --brief
 
 # 2. Detailed structured JSON query:
-node index.mjs charizard
+node <skill-dir>/index.mjs charizard
 
 # 3. Query by National Dex ID:
-node index.mjs 25
+node <skill-dir>/index.mjs 25
 
 # 4. Download official artwork (475x475 transparent PNG):
-node index.mjs 6 --sprite official --out charizard.png
+node <skill-dir>/index.mjs 6 --sprite official --out charizard.png
 
 # 5. Download battle animated GIF or Shiny version:
-node index.mjs 6 --sprite showdown --shiny --out charizard_shiny.gif
-node index.mjs 25 --sprite gen3 --out pikachu_emerald.png
+node <skill-dir>/index.mjs 6 --sprite showdown --shiny --out charizard_shiny.gif
+node <skill-dir>/index.mjs 25 --sprite gen3 --out pikachu_emerald.png
 ```
 
 ## Options
@@ -54,7 +54,7 @@ node index.mjs 25 --sprite gen3 --out pikachu_emerald.png
   - `gen3`: GBA Emerald retro pixel sprite.
   - `default`: Classic front pixel sprite.
 - `--shiny`: Fetches the shiny version. With `official`, these are fan-made recolors, not official artwork.
-- `--out <filepath>`: Downloads the image to a path inside the current directory. Existing files are kept.
+- `--out <filepath>`: Downloads the image to a path inside the current directory (the user's project, see above). Existing files are kept.
 - `--force`: Lets `--out` overwrite an existing file.
 
 ## Queries that match several Pokémon
@@ -67,7 +67,7 @@ Alternate forms are separate entries: query them by name (`wash rotom`, `清洗�
 
 This tool can also be run directly as a standard Model Context Protocol (MCP) server:
 ```bash
-node index.mjs --mcp
+node <skill-dir>/index.mjs --mcp
 ```
 
 ## Author & Legal Notice
